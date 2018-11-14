@@ -33,7 +33,7 @@ def get_bytes_per_data_block(header):
     bytes_per_block = bytes_per_block + header['num_samples_per_data_block'] * 2 * header['num_amplifier_channels']
 
     # Auxiliary inputs are sampled 4x slower than amplifiers
-    bytes_per_block = bytes_per_block + (header['num_samples_per_data_block'] / 4) * 2 * header[
+    bytes_per_block = bytes_per_block + int(header['num_samples_per_data_block'] / 4) * 2 * header[
         'num_aux_input_channels']
 
     # Supply voltage is sampled 60 or 128x slower than amplifiers
@@ -925,7 +925,7 @@ def is_session_beginning(filename):
             num_data_blocks = int(bytes_remaining / bytes_per_block)
 
             num_amplifier_samples = header['num_samples_per_data_block'] * num_data_blocks
-            num_aux_input_samples = (header['num_samples_per_data_block'] / 4) * num_data_blocks
+            num_aux_input_samples = int(header['num_samples_per_data_block'] / 4) * num_data_blocks
             num_supply_voltage_samples = 1 * num_data_blocks
             num_board_adc_samples = header['num_samples_per_data_block'] * num_data_blocks
             num_board_dig_in_samples = header['num_samples_per_data_block'] * num_data_blocks
@@ -939,7 +939,7 @@ def is_session_beginning(filename):
                 data_stride += header['num_samples_per_data_block'] * header['num_amplifier_channels'] * 2  # 60 values x X channels x 2 bytes
 
             if header['num_aux_input_channels'] > 0:
-                data_stride += (header['num_samples_per_data_block'] / 4) * header['num_aux_input_channels'] * 2
+                data_stride += int(header['num_samples_per_data_block'] / 4) * header['num_aux_input_channels'] * 2
 
             if header['num_supply_voltage_channels'] > 0:
                 data_stride += header['num_supply_voltage_channels'] * 2
