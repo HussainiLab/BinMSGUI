@@ -496,7 +496,16 @@ def get_cue_json_parameter(directory, tint_basename, parameter):
 
 
 def get_data_limits(directory, tint_basename, data_digital_in, self=None):
+    """
+    This will get the beginning and end indices of the data defined by when digital channel used to deliver the start
+    and stop signal is set to high.
 
+    :param directory: the directory name of the file you want to get the limits of 'C:\\example\\'
+    :param tint_basename: the tint basename of file that was used to produced the '*_cues.json' file.
+    :param data_digital_in: the digital input data
+    :param self: the self variable for the GUI (if used by a GUI)
+    :return:
+    """
     default_start_stop_pin = 0
 
     start_stop_pin = get_cue_json_parameter(directory, tint_basename, 'Start/Stop Digital Input:')
@@ -507,14 +516,31 @@ def get_data_limits(directory, tint_basename, data_digital_in, self=None):
         start_stop_pin = int(start_stop_pin)
 
     start_stop_index = detect_peaks(data_digital_in[start_stop_pin, :], mpd=1, mph=0, threshold=0)
-    if len(start_stop_index) != 2:
-        msg = '[%s %s]: Start/Stop indices has improper length!#red' % (str(datetime.datetime.now().date()),
+    if len(start_stop_index) > 2:
+        # This is odd but I have seen a few indices where the start/stop had the correct start/stop signal, but
+        # also received a few of the other signals as well across its channel. Not entirely sure why. We will just
+        # return the first and last of the peaks
+
+        msg = '[%s %s]: Start/Stop indices have larger length than expected!#red' % (str(datetime.datetime.now().date()),
                                                                             str(datetime.datetime.now().time())[
                                                                             :8])
         if self is None:
             print(msg)
         else:
             self.Log.append(msg)
+        return start_stop_index[0], start_stop_index[-1]
+
+    elif len(start_stop_index) < 2:
+        # For some reason it is missing one or both the signals.
+
+        msg = '[%s %s]: No Start/Stop indices found!#red' % (str(datetime.datetime.now().date()),
+                                                                        str(datetime.datetime.now().time())[
+                                                                        :8])
+        if self is None:
+            print(msg)
+        else:
+            self.Log.append(msg)
+
         return None, None
 
     return start_stop_index[0], start_stop_index[1]
