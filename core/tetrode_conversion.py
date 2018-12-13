@@ -105,8 +105,9 @@ def convert_tetrode(filt_filename, output_basename, self=None):
 
     tetrode = int(mda_basename[find_sub(mda_basename, '_')[-1] + 2:])
 
-    new_basename = '%s_ms' % tint_basename
-    tetrode_filepath = '%s.%d' % (os.path.join(directory, new_basename), tetrode)
+    # new_basename = '%s_ms' % tint_basename
+    # tetrode_filepath = '%s.%d' % (os.path.join(directory, new_basename), tetrode)
+    tetrode_filepath = '%s.%d' % (output_basename, tetrode)
 
     if os.path.exists(tetrode_filepath):
         msg = '[%s %s]: The following file already exists: %s, skipping conversion!' % (

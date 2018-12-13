@@ -229,23 +229,59 @@ def run_sort(*, raw_fname=None, filt_fname=None, pre_fname=None, geom_fname=None
     run_pipeline_js(pipeline, inputs, outputs, parameters, verbose=verbose, terminal_text_filename=terminal_text_filename)
 
 
-def sort_finished(terminal_output_filename):
+def sort_finished(terminal_output_filename, max_time=600):
     # wait for the terminal output to exist
+
+    # max_time = max time in secoinds to wait
+
     while not os.path.exists(terminal_output_filename):
         time.sleep(0.1)
+
+    sort_invalid_string = ['Process returned with non-zero exit code']
 
     finished_string = '%s%s%s' % ('[ Saving to process cache ... ]\n',
                                   '[ Removing temporary directory ... ]\n',
                                   '[ Done. ]\n')
+
+    sort_string = 'ms4_geoff_spec.py.mp ms4_geoff.sort'
+
+    file_sorted = False
     finished = False
+    start_time_set = False
+    start_sort_time = None
 
     while not finished:
         with open(terminal_output_filename, 'r') as f:
             output_text = ''.join(f.readlines())  # want to make sure that the output is in text not a list
 
-            if finished_string in output_text:
-                finished = True
-    return True
+        if sort_string in output_text and not file_sorted and not start_time_set:
+            start_sort_time = time.time()
+            start_time_set = True
+
+            file_length = len(output_text)
+
+        if start_sort_time is None:
+            time.sleep(0.1)
+            continue
+
+        if time.time() - start_sort_time >= max_time:
+            # we've waited long enough for the file to sort.
+            return False, "Retry"
+
+        # check if the sort was broken.
+        for invalid_str in sort_invalid_string:
+            if invalid_str in output_text:
+                return False, 'Abort'
+
+        if len(output_text) == file_length:
+            continue
+        else:
+            file_sorted = True
+
+        if finished_string in output_text:
+            finished = True
+
+    return True, 'Complete'
 
 
 def sort_bin(directory, tint_fullpath, whiten='true', detect_interval=10, detect_sign=0, detect_threshold=3,
@@ -296,12 +332,46 @@ def sort_bin(directory, tint_fullpath, whiten='true', detect_interval=10, detect
         if masked_chunk_size is None:
             masked_chunk_size = int(Fs/10)
 
-        run_sort(filt_fname=filt_fname, pre_out_fname=pre_out_fname,
-                 metrics_out_fname=metrics_out_fname, firings_out=firings_out, masked_out_fname=masked_out_fname,
-                 samplerate=Fs, detect_interval=detect_interval, detect_sign=detect_sign,
-                 detect_threshold=detect_threshold, freq_min=freq_min, freq_max=freq_max, mask_threshold=mask_threshold,
-                 mask_chunk_size=masked_chunk_size, mask_num_write_chunks=mask_num_write_chunks, whiten=whiten,
-                 clip_size=clip_size, terminal_text_filename=terminal_text_filename)
+        sorting = True
+        sorting_attempts = 0
 
-        # wait for the sort to finish before continuing
-        finished = sort_finished(get_windows_filename(terminal_text_filename))
+        if os.path.exists(get_windows_filename(terminal_text_filename)):
+            os.remove(get_windows_filename(terminal_text_filename))
+
+        while sorting:
+
+            run_sort(filt_fname=filt_fname, pre_out_fname=pre_out_fname,
+                     metrics_out_fname=metrics_out_fname, firings_out=firings_out,
+                     masked_out_fname=masked_out_fname,
+                     samplerate=Fs, detect_interval=detect_interval, detect_sign=detect_sign,
+                     detect_threshold=detect_threshold, freq_min=freq_min, freq_max=freq_max,
+                     mask_threshold=mask_threshold,
+                     mask_chunk_size=masked_chunk_size, mask_num_write_chunks=mask_num_write_chunks,
+                     whiten=whiten,
+                     clip_size=clip_size, terminal_text_filename=terminal_text_filename)
+
+            # wait for the sort to finish before continuing
+            finished, sort_code = sort_finished(get_windows_filename(terminal_text_filename))
+
+            if sorting_attempts >= 5:
+                # we've tried to sort a bunch of times, doesn't seem to work
+                sorting = False
+
+            elif 'Abort' in sort_code:
+                # there's a problem with the sort,
+                sorting = False
+                msg = '[%s %s]: There was an error sorting the following file, consult terminal text file: %s!#Red' % \
+                      (str(datetime.datetime.now().date()),
+                       str(datetime.datetime.now().time())[:8], filt_fname)
+
+                if self:
+                    self.LogAppend.myGUI_signal_str.emit(msg)
+                else:
+                    print(msg)
+
+            elif not finished:
+                os.remove(get_windows_filename(terminal_text_filename))
+                sorting_attempts += 1
+
+            else:
+                sorting = False

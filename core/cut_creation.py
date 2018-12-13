@@ -48,6 +48,20 @@ def write_cut(cut_filename, cut, basename=None):
         f.writelines(write_list)
 
 
+def write_clu(clu_filename, data):
+
+    # the .clu files and the .cut files are different since the .clu files are the .cut files (with no manual sorting)
+    # without the headers, and the values go from 1 -> N instead of 0 -> N, (1-based numbering instead of 0-based). Thus
+    # we add 1 to the .cut data to get the .clu data
+
+    data = np.asarray(data).astype(int)  # ensuring that the data is the integer datatype
+
+    data += 1  # making the data 1-based instead of 0-based
+
+    # saving the data as a column (delimter='\n') and integer format.
+    np.savetxt(clu_filename, data, fmt='%d', delimiter='\n')
+
+
 def is_json(file):
     if os.path.splitext(file)[-1] == '.json':
         return True
@@ -127,7 +141,7 @@ def get_tint_cut(cut, mua_cells):
     return itemgetter(*list(cut))(cut_dict), cut_dict
 
 
-def create_cut(cut_filename, cell_numbers, tetrode, tint_basename, output_basename, self=None):
+def create_cut(cut_filename, clu_filename, cell_numbers, tetrode, tint_basename, output_basename, self=None):
 
     metric_file = tint_basename + '_T%d_metrics.json' % tetrode
 
@@ -149,5 +163,8 @@ def create_cut(cut_filename, cell_numbers, tetrode, tint_basename, output_basena
     # re-ordering the cell number so in tint the mua cells are in the back
     # also re-ordered by number of spikes
     cut_cont, cut_dict = get_tint_cut(cell_numbers, mua_cells)
+
+    # write the .clu.N file
+    write_clu(clu_filename, cut_cont)
 
     write_cut(cut_filename, cut_cont, basename=output_basename)
