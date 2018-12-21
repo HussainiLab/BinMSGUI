@@ -23,6 +23,9 @@ def check_file_complete(filepath, delta_time=5):
 def get_ubuntu_path(filepath):
     # get the drive letter
 
+    if filepath is None:
+        return None
+
     drive_letter_i = filepath.find(':/')
 
     if drive_letter_i == -1:
@@ -46,6 +49,10 @@ def get_ubuntu_path(filepath):
 
 def get_windows_filename(filename):
     # remove the single quotes if added
+
+    if filename is None:
+        return None
+
     if filename[0] == "'" and filename[-1] == "'":
         filename = filename[1:-1]
 
@@ -251,8 +258,11 @@ def sort_finished(terminal_output_filename, max_time=600):
     start_sort_time = None
 
     while not finished:
-        with open(terminal_output_filename, 'r') as f:
-            output_text = ''.join(f.readlines())  # want to make sure that the output is in text not a list
+        try:
+            with open(terminal_output_filename, 'r') as f:
+                output_text = ''.join(f.readlines())  # want to make sure that the output is in text not a list
+        except PermissionError:
+            continue
 
         if sort_string in output_text and not file_sorted and not start_time_set:
             start_sort_time = time.time()
@@ -301,16 +311,21 @@ def sort_bin(directory, tint_fullpath, whiten='true', detect_interval=10, detect
 
         masked_out_fname = get_ubuntu_path(mda_basename + '_masked.mda')
         firings_out = get_ubuntu_path(mda_basename + '_firings.mda')
-        # filt_out_fname = get_ubuntu_path(mda_basename + '_filt.mda')
-        pre_out_fname = get_ubuntu_path(mda_basename + '_pre.mda')
+
+        if whiten == 'true':
+            pre_out_fname = get_ubuntu_path(mda_basename + '_pre.mda')
+        else:
+            pre_out_fname = None
+
         metrics_out_fname = get_ubuntu_path(mda_basename + '_metrics.json')
 
         # check if these outputs have already been created, skip if they have
         existing_files = 0
         output_files = [masked_out_fname, firings_out, pre_out_fname, metrics_out_fname]
         for outfile in output_files:
-            if os.path.exists(get_windows_filename(outfile)):
-                existing_files += 1
+            if outfile is not None:
+                if os.path.exists(get_windows_filename(outfile)):
+                    existing_files += 1
 
         if existing_files == len(output_files):
             msg = '[%s %s]: The following file has already been sorted: %s, skipping sort!#Red' % \

@@ -85,7 +85,7 @@ def convert_tetrode(filt_filename, output_basename, self=None):
     msg = '[%s %s]: Converting the MountainSort output following filename to Tint: %s' % (str(datetime.datetime.now().date()),
                                                                             str(datetime.datetime.now().time())[
                                                                             :8], filt_filename)
-
+    cell_numbers = None
     tetrode_skipped = False
 
     if self is None:
@@ -154,7 +154,8 @@ def convert_tetrode(filt_filename, output_basename, self=None):
 
         A, _ = readMDA(firings_out)
 
-        spike_times = (A[1, :]).astype(int)  # at this stage it is in index values (0-based)
+        # spike_channel = A[0, :].astype(int)
+        spike_times = A[1, :].astype(int)  # at this stage it is in index values (0-based)
         cell_numbers = A[2, :].astype(int)
         # ------------- creating clips ---------------------- #
 
@@ -196,6 +197,7 @@ def convert_tetrode(filt_filename, output_basename, self=None):
         # making sure now
         spike_bool = np.where((spike_times + post_spike < max_n) * (spike_times - pre_spike >= 0))[0]
 
+        # spike_channel = spike_channel[spike_bool]
         spike_times = spike_times[spike_bool]
         cell_numbers = cell_numbers[spike_bool]
 
@@ -235,7 +237,7 @@ def convert_tetrode(filt_filename, output_basename, self=None):
     # ------------ creating the cut file ----------------------- #
 
     # output_basename = '%s_ms' % tint_basename
-
+    clu_filename = '%s.clu.%d' % (os.path.join(directory, output_basename), tetrode)
     cut_filename = '%s_%d.cut' % (os.path.join(directory, output_basename), tetrode)
 
     if os.path.exists(cut_filename):
@@ -271,7 +273,6 @@ def convert_tetrode(filt_filename, output_basename, self=None):
 
             pre_spike = 11
             post_spike = 39
-            clip_size = pre_spike + post_spike
 
             # max sample index
 
@@ -279,13 +280,12 @@ def convert_tetrode(filt_filename, output_basename, self=None):
 
             max_n = data_masked.shape[1] - 1
 
-            # making sure now
             spike_bool = np.where((spike_times + post_spike < max_n) * (spike_times - pre_spike >= 0))[0]
 
             spike_times = None
             cell_numbers = cell_numbers[spike_bool]
 
-        create_cut(cut_filename, cell_numbers, tetrode, tint_basename, output_basename, self=self)
+        create_cut(cut_filename, clu_filename, cell_numbers, tetrode, tint_basename, output_basename, self=self)
 
 
 def batch_basename_tetrodes(directory, tint_basename, output_basename, self=None):

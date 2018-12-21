@@ -33,6 +33,8 @@ def create_pos(pos_filename, set_filename, pos_data):
         [write_list.append(bytes('%s\r\n' % value, 'utf-8')) for value in header.split('\n') if value != '']
 
         header_vals = ['num_colours %d' % 4]
+
+        '''
         if 'abid' in header.lower():
             header_vals.extend(
                 ['\r\nmin_x %d' % 0,
@@ -45,8 +47,23 @@ def create_pos(pos_filename, set_filename, pos_data):
                  '\r\nmax_x %d' % 640,
                  '\r\nmin_y %d' % 0,
                  '\r\nmax_y %d' % 480]
-
             )
+        else:
+            header_vals.extend(
+                ['\r\nmin_x %d' % 0,
+                 '\r\nmax_x %d' % 768,
+                 '\r\nmin_y %d' % 0,
+                 '\r\nmax_y %d' % 574]
+            )
+        '''
+
+        header_vals.extend(
+            ['\r\nmin_x %d' % 0,
+             '\r\nmax_x %d' % 768,
+             '\r\nmin_y %d' % 0,
+             '\r\nmax_y %d' % 574]
+        )
+
         header_vals.extend(
             ['\r\nwindow_min_x %d' % int(get_setfile_parameter('xmin', set_filename)),
             '\r\nwindow_max_x %d' % int(get_setfile_parameter('xmax', set_filename)),
