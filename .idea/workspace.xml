@@ -1,15 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="e3a45516-af7a-4c8c-8770-4eb60748b76d" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/bin2mda.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/bin2mda.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/convert_position.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/convert_position.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/eeg_conversion.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/eeg_conversion.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/intan_mountainsort.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/intan_mountainsort.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mdaSort.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/mdaSort.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/BinMSGUI.py" afterDir="false" />
-    </list>
+    <list default="true" id="e3a45516-af7a-4c8c-8770-4eb60748b76d" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,8 +49,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$USER_HOME$/Google Drive/CUMC/Code/Python/Notebooks/BinMSGUI/tetrode_conversion.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="119">
-              <caret line="7" column="15" selection-start-line="7" selection-start-column="15" selection-end-line="7" selection-end-column="15" />
+            <state relative-caret-position="-1853">
+              <caret line="8" selection-start-line="8" selection-end-line="8" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -406,8 +398,8 @@
     </entry>
     <entry file="file://$USER_HOME$/Google Drive/CUMC/Code/Python/Notebooks/BinMSGUI/tetrode_conversion.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="7" column="15" selection-start-line="7" selection-start-column="15" selection-end-line="7" selection-end-column="15" />
+        <state relative-caret-position="-1853">
+          <caret line="8" selection-start-line="8" selection-end-line="8" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

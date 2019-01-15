@@ -27,6 +27,7 @@ def find_sub(string, sub):
 
 def get_intan_data(session_files, data_channels=None, tetrode=None, self=None, verbose=None, tetrode_data=True,
                    digital_data=True):
+
     file_header = read_header(session_files[0])
 
     data = np.array([])
@@ -82,6 +83,9 @@ def get_intan_data(session_files, data_channels=None, tetrode=None, self=None, v
 
         if tetrode_data:
             # read the ephys data
+            if data_channels is None:
+                data_channels = np.arange(file_data['amplifier_data'].shape[0])+1
+
             if data.shape[0] == 0:
                 data = file_data['amplifier_data']
                 # bits, data is arranged into (number of channels, number of samples)
@@ -609,15 +613,23 @@ def get_data_limits(directory, tint_basename, data_digital_in, self=None):
     elif len(start_stop_index) < 2:
         # For some reason it is missing one or both the signals.
 
-        msg = '[%s %s]: No Start/Stop indices found!#red' % (str(datetime.datetime.now().date()),
-                                                                        str(datetime.datetime.now().time())[
-                                                                        :8])
+        msg = '[%s %s]: No Start/Stop indices found! Will use latest digital signal as end.#red' % (
+            str(datetime.datetime.now().date()), str(datetime.datetime.now().time())[:8])
         if self is None:
             print(msg)
         else:
             self.Log.append(msg)
 
-        return None, None
+        # find the latest digital signal from any of the other channels to use as the end.
+        peak_indices = []
+        for channel in data_digital_in:
+            peak_indices += detect_peaks(channel, mpd=1, mph=0, threshold=0).tolist()
+        peak_indices = np.asarray(peak_indices)
+
+        if len(peak_indices) < 2:
+            return None, None
+        else:
+            return np.amin(peak_indices), np.amax(peak_indices)
 
     return start_stop_index[0], start_stop_index[1]
 
