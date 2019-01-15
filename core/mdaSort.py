@@ -246,50 +246,58 @@ def sort_finished(terminal_output_filename, max_time=600):
 
     sort_invalid_string = ['Process returned with non-zero exit code']
 
+    already_analyzed_string = '%s%s%s' % ('[ Checking process cache ... ]\n',
+                                          '[ Process ms4_geoff.sort already completed. ]\n',
+                                          '[ Done. ]\n')
+
     finished_string = '%s%s%s' % ('[ Saving to process cache ... ]\n',
                                   '[ Removing temporary directory ... ]\n',
                                   '[ Done. ]\n')
 
-    sort_string = 'ms4_geoff_spec.py.mp ms4_geoff.sort'
-
-    file_sorted = False
     finished = False
-    start_time_set = False
-    start_sort_time = None
+
+    prev_last_line = ''
+
+    file_error = False
 
     while not finished:
         try:
             with open(terminal_output_filename, 'r') as f:
-                output_text = ''.join(f.readlines())  # want to make sure that the output is in text not a list
+                data = f.readlines()
+                output_text = ''.join(data)  # want to make sure that the output is in text not a list
+                last_line = data[-1]
+
+                # we will update the next step, if the next step
+                # hangs for the max time it will restart
+                if last_line != prev_last_line:
+                    next_step_time = time.time()
+                    prev_last_line = last_line
+
+                if time.time() - next_step_time >= max_time:
+                    # we've waited long enough for the file to sort.
+                    return False, "Retry"
         except PermissionError:
             continue
-
-        if sort_string in output_text and not file_sorted and not start_time_set:
-            start_sort_time = time.time()
-            start_time_set = True
-
-            file_length = len(output_text)
-
-        if start_sort_time is None:
-            time.sleep(0.1)
+        except FileNotFoundError:
+            if not file_error:
+                time.sleep(0.1)
+                file_error = True
+                continue
+            else:
+                return False, "Retry"
+        except IndexError:
             continue
 
-        if time.time() - start_sort_time >= max_time:
-            # we've waited long enough for the file to sort.
-            return False, "Retry"
+        if already_analyzed_string in output_text:
+            finished = True
+
+        if finished_string in output_text:
+            finished = True
 
         # check if the sort was broken.
         for invalid_str in sort_invalid_string:
             if invalid_str in output_text:
                 return False, 'Abort'
-
-        if len(output_text) == file_length:
-            continue
-        else:
-            file_sorted = True
-
-        if finished_string in output_text:
-            finished = True
 
     return True, 'Complete'
 

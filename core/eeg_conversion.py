@@ -257,7 +257,7 @@ def convert_eeg(set_filename, new_basename, self=None):
               (str(datetime.datetime.now().date()),
                str(datetime.datetime.now().time())[:8], set_filename)
         if self is not None:
-            self.LogAppend.myGUI_signal.emit(msg)
+            self.LogAppend.myGUI_signal_str.emit(msg)
         else:
             print(msg)
 
@@ -276,7 +276,7 @@ def convert_eeg(set_filename, new_basename, self=None):
               (str(datetime.datetime.now().date()),
                str(datetime.datetime.now().time())[:8], bin_filename)
         if self is not None:
-            self.LogAppend.myGUI_signal.emit(msg)
+            self.LogAppend.myGUI_signal_str.emit(msg)
         else:
             print(msg)
 
@@ -313,7 +313,7 @@ def convert_eeg(set_filename, new_basename, self=None):
                   (str(datetime.datetime.now().date()),
                    str(datetime.datetime.now().time())[:8], eeg_filename)
             if self is not None:
-                self.LogAppend.myGUI_signal.emit(msg)
+                self.LogAppend.myGUI_signal_str.emit(msg)
             else:
                 print(msg)
         else:
@@ -322,7 +322,7 @@ def convert_eeg(set_filename, new_basename, self=None):
                    str(datetime.datetime.now().time())[:8], eeg_str)
 
             if self is not None:
-                self.LogAppend.myGUI_signal.emit(msg)
+                self.LogAppend.myGUI_signal_str.emit(msg)
             else:
                 print(msg)
 
@@ -338,7 +338,7 @@ def convert_eeg(set_filename, new_basename, self=None):
                   (str(datetime.datetime.now().date()),
                    str(datetime.datetime.now().time())[:8], eeg_filename)
             if self is not None:
-                self.LogAppend.myGUI_signal.emit(msg)
+                self.LogAppend.myGUI_signal_str.emit(msg)
             else:
                 print(msg)
 
@@ -355,7 +355,7 @@ def convert_eeg(set_filename, new_basename, self=None):
                        str(datetime.datetime.now().time())[:8], eeg_str)
 
                 if self is not None:
-                    self.LogAppend.myGUI_signal.emit(msg)
+                    self.LogAppend.myGUI_signal_str.emit(msg)
                 else:
                     print(msg)
 

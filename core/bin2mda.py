@@ -51,7 +51,6 @@ def bin2mda(bin_filename, set_filename, Fs=48e3, notch_filter=True, notch_freq=6
             self.LogAppend.myGUI_signal_str.emit(msg)
         else:
             print(msg)
-        # self.LogAppend.myGUI_signal.emit(msg)
 
         mda_filename = '%s_T%d_filt.mda' % (os.path.join(directory, tint_basename), tetrode)
 

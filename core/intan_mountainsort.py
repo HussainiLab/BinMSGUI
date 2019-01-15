@@ -67,7 +67,6 @@ def intan2mda(session_files, directory, self=None):
             self.LogAppend.myGUI_signal_str.emit(msg)
         else:
             print(msg)
-        # self.LogAppend.myGUI_signal.emit(msg)
 
         mda_filename = '%s_T%d_raw.mda' % (os.path.join(directory, tint_basename), tetrode)
 
@@ -94,7 +93,7 @@ def intan2mda(session_files, directory, self=None):
         msg = '[%s %s]: Currently Converting Data Related to Tetrode: %d!' % \
               (str(datetime.datetime.now().date()),
                str(datetime.datetime.now().time())[:8], tetrode)
-        # self.LogAppend.myGUI_signal.emit(msg)
+
         if self:
             self.LogAppend.myGUI_signal_str.emit(msg)
         else:
@@ -107,7 +106,7 @@ def intan2mda(session_files, directory, self=None):
             msg = '[%s %s]: Currently loading T%d data from the following file: %s' % \
                   (str(datetime.datetime.now().date()),
                    str(datetime.datetime.now().time())[:8], tetrode, session_file)
-            # self.LogAppend.myGUI_signal.emit(msg)
+
             if self:
                 self.LogAppend.myGUI_signal_str.emit(msg)
             else:

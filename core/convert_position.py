@@ -112,7 +112,7 @@ def convert_position(bin_filename, position_filename, set_filename, self=None):
         if self is None:
             print(msg)
         else:
-            self.LogAppend.myGUI_signal.emit(msg)
+            self.LogAppend.myGUI_signal_str.emit(msg)
 
         msg = '[%s %s]: Reading in the position data!' % \
             (str(datetime.datetime.now().date()),
@@ -121,7 +121,7 @@ def convert_position(bin_filename, position_filename, set_filename, self=None):
         if self is None:
             print(msg)
         else:
-            self.LogAppend.myGUI_signal.emit(msg)
+            self.LogAppend.myGUI_signal_str.emit(msg)
 
         if not os.path.exists(bin_filename):
 
@@ -132,7 +132,7 @@ def convert_position(bin_filename, position_filename, set_filename, self=None):
             if self is None:
                 print(msg)
             else:
-                self.LogAppend.myGUI_signal.emit(msg)
+                self.LogAppend.myGUI_signal_str.emit(msg)
 
             raise FileNotFoundError("The following file does not exist: %s" % bin_filename)
 
@@ -145,7 +145,7 @@ def convert_position(bin_filename, position_filename, set_filename, self=None):
         if self is None:
             print(msg)
         else:
-            self.LogAppend.myGUI_signal.emit(msg)
+            self.LogAppend.myGUI_signal_str.emit(msg)
 
         create_pos(position_filename, set_filename, raw_position)
 
@@ -158,4 +158,4 @@ def convert_position(bin_filename, position_filename, set_filename, self=None):
         if self is None:
             print(msg)
         else:
-            self.LogAppend.myGUI_signal.emit(msg)
+            self.LogAppend.myGUI_signal_str.emit(msg)
