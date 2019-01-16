@@ -106,15 +106,15 @@ def get_intan_data(session_files, data_channels=None, tetrode=None, self=None, v
 
 
 def get_bytes_per_data_block(header):
-    """Calculates the number of bytes in each 60-sample datablock."""
+    """Calculates the number of bytes in each 60 or 128 sample datablock."""
 
     # Each data block contains 60 or 128 amplifier samples.
     bytes_per_block = header['num_samples_per_data_block'] * 4  # timestamp data
     bytes_per_block = bytes_per_block + header['num_samples_per_data_block'] * 2 * header['num_amplifier_channels']
 
     # Auxiliary inputs are sampled 4x slower than amplifiers
-    bytes_per_block = bytes_per_block + int(header['num_samples_per_data_block'] / 4) * 2 * header[
-        'num_aux_input_channels']
+    bytes_per_block = bytes_per_block + (
+            header['num_samples_per_data_block'] / 4) * 2 * header['num_aux_input_channels']
 
     # Supply voltage is sampled 60 or 128x slower than amplifiers
     bytes_per_block = bytes_per_block + 1 * 2 * header['num_supply_voltage_channels']
@@ -434,36 +434,42 @@ def read_data(filename):
             num_data_blocks = int(bytes_remaining / bytes_per_block)
 
             num_amplifier_samples = header['num_samples_per_data_block'] * num_data_blocks
-            num_aux_input_samples = int((header['num_samples_per_data_block'] / 4) * num_data_blocks)
-            num_supply_voltage_samples = 1 * num_data_blocks
+            # num_aux_input_samples = int((header['num_samples_per_data_block'] / 4) * num_data_blocks)
+            # num_supply_voltage_samples = 1 * num_data_blocks
             num_board_adc_samples = header['num_samples_per_data_block'] * num_data_blocks
             num_board_dig_in_samples = header['num_samples_per_data_block'] * num_data_blocks
-            num_board_dig_out_samples = header['num_samples_per_data_block'] * num_data_blocks
+            # num_board_dig_out_samples = header['num_samples_per_data_block'] * num_data_blocks
 
-            record_time = num_amplifier_samples / header['sample_rate']
+            # record_time = num_amplifier_samples / header['sample_rate']
 
             # calculate how many bytes per block so we can skip unnecessary data
             data_stride = 4 * header['num_samples_per_data_block']  # offset from the t_amplifier
             if header['num_amplifier_channels'] > 0:
-                # num_samples_per_data_block values x X channels x 2 bytes,
-                data_stride += header['num_samples_per_data_block'] * header['num_amplifier_channels'] * 2
+                # num_samples_per_data_block values x X channels x 2 bytes, offset from amplifier_data
+                data_stride += 2 * header['num_samples_per_data_block'] * header['num_amplifier_channels']
 
             if header['num_aux_input_channels'] > 0:
-                data_stride += int(header['num_samples_per_data_block'] / 4) * header['num_aux_input_channels'] * 2
+                # offset from aux_input_data
+                data_stride += 2 * int(header['num_samples_per_data_block'] / 4) * header['num_aux_input_channels']
 
             if header['num_supply_voltage_channels'] > 0:
-                data_stride += header['num_supply_voltage_channels'] * 2
+                # offset from supply_voltage_data
+                data_stride += 2 * header['num_supply_voltage_channels']
 
             if header['num_temp_sensor_channels'] > 0:
-                data_stride += header['num_temp_sensor_channels'] * 2
+                # offset from temp_sensor_data
+                data_stride += 2 * header['num_temp_sensor_channels']
 
             if header['num_board_adc_channels'] > 0:
-                data_stride += header['num_samples_per_data_block'] * header['num_board_adc_channels'] * 2
+                # offset from board_adc_data
+                data_stride += 2 * header['num_samples_per_data_block'] * header['num_board_adc_channels']
 
             if header['num_board_dig_in_channels'] > 0:
+                # offset from board_dig_in_raw
                 data_stride += 2 * header['num_samples_per_data_block']
 
             if header['num_board_dig_out_channels'] > 0:
+                # offset from board_dig_out_raw
                 data_stride += 2 * header['num_samples_per_data_block']
 
             if data_present:
@@ -484,18 +490,23 @@ def read_data(filename):
                                                             dtype=np.uint)
 
                 if (header['version'][0] == 1 and header['version'][1] >= 2) or (header['version'][0] > 1):
-                    data['t_amplifier'] = np.ndarray((num_data_blocks,), ('<i', (1, header['num_samples_per_data_block'])), m, header_length,
+                    data['t_amplifier'] = np.ndarray((num_data_blocks,),
+                                                     ('<i', (1, header['num_samples_per_data_block'])),
+                                                     m, header_length,
                                                      (data_stride,)).flatten()
 
                 else:
-                    data['t_amplifier'] = np.ndarray((num_data_blocks,), ('<I', (1, header['num_samples_per_data_block'])), m, header_length,
+                    data['t_amplifier'] = np.ndarray((num_data_blocks,),
+                                                     ('<I', (1, header['num_samples_per_data_block'])), m,
+                                                     header_length,
                                                      (data_stride,)).flatten()
 
                 # we will read the amplifier data by reading the 60 values per block per channel, starting at
                 # a given offset , and then repeating every data_stride
 
                 data_values = np.ndarray((num_data_blocks,),
-                                         (np.uint16, (header['num_amplifier_channels'], header['num_samples_per_data_block'])),
+                                         (np.uint16, (header['num_amplifier_channels'],
+                                                      header['num_samples_per_data_block'])),
                                          m, get_offset(header, header_length, 'amplifier_data'),
                                          (data_stride,))
 
@@ -520,9 +531,11 @@ def read_data(filename):
                 if header['num_board_adc_channels'] > 0:
                     if num_board_adc_samples > 0:
                         data['board_adc_data'] = np.ndarray((num_data_blocks,),
-                                                              ('<H', (header['num_board_adc_channels'], header['num_samples_per_data_block'])),
+                                                              ('<H', (header['num_board_adc_channels'],
+                                                                      header['num_samples_per_data_block'])),
                                                               m, get_offset(header, header_length, 'board_adc_data'),
-                                                              (data_stride,)).flatten().reshape((header['num_board_adc_channels'], -1))
+                                                              (data_stride,)).flatten().reshape((
+                            header['num_board_adc_channels'], -1))
 
                 data_values = None
                 m = None
@@ -541,17 +554,19 @@ def get_offset(header, header_length, output):
         offset = header_length + 4 * header['num_samples_per_data_block']
 
     elif output == 'board_dig_in_raw':
-        offset = header_length + 4 * header['num_samples_per_data_block'] + header['num_samples_per_data_block'] * header['num_amplifier_channels'] * 2 + \
-                 int(header['num_samples_per_data_block'] / 4) * header['num_aux_input_channels'] * 2 + \
-                 header['num_supply_voltage_channels'] * 2 + \
-                 header['num_temp_sensor_channels'] * 2 + header['num_samples_per_data_block'] * header['num_board_adc_channels'] * 2
+        offset = header_length + 4 * header['num_samples_per_data_block'] + \
+                 2 * header['num_samples_per_data_block'] * header['num_amplifier_channels'] + \
+                 2 * int(header['num_samples_per_data_block'] / 4) * header['num_aux_input_channels'] + \
+                 2 * header['num_supply_voltage_channels'] + \
+                 2 * header['num_temp_sensor_channels'] + \
+                 2 * header['num_samples_per_data_block'] * header['num_board_adc_channels']
 
     elif output == 'board_adc_data':
-        offset = header_length + 4 * header['num_samples_per_data_block'] + header['num_samples_per_data_block'] * \
-                                                                            header['num_amplifier_channels'] * 2 + \
-                 int(header['num_samples_per_data_block'] / 4) * header['num_aux_input_channels'] * 2 + \
-                 header['num_supply_voltage_channels'] * 2 + \
-                 header['num_temp_sensor_channels'] * 2
+        offset = header_length + 4 * header['num_samples_per_data_block'] + \
+                 2 * header['num_samples_per_data_block'] * header['num_amplifier_channels'] + \
+                 2 * int(header['num_samples_per_data_block'] / 4) * header['num_aux_input_channels'] + \
+                 2 * header['num_supply_voltage_channels'] + \
+                 2 * header['num_temp_sensor_channels']
 
     return offset
 
@@ -839,7 +854,7 @@ def _plot(x, mph, mpd, threshold, edge, valley, ax, ind):
 
 
 def find_consec(data):
-    '''finds the consecutive numbers and outputs as a list'''
+    """finds the consecutive numbers and outputs as a list"""
     consecutive_values = []  # a list for the output
     current_consecutive = [data[0]]
 
@@ -990,7 +1005,7 @@ def find_basename_files(basename, directory):
 
 
 def session_datetime(file, output='datetime'):
-    '''Getting the Trial Date and Time value for the .set file'''
+    """Getting the Trial Date and Time value for the .set file"""
 
     file = os.path.splitext(os.path.basename(file))[0]
     date, time = (file[find_sub(file, '_')[-2] + 1:]).split('_')
@@ -1028,41 +1043,37 @@ def is_session_beginning(filename):
 
             bytes_remaining = len(m) - header_length
 
-            data_present = False
-
-            if bytes_remaining > 0:
-                data_present = True
-
             if bytes_remaining % bytes_per_block != 0:
                 raise Exception('Something is wrong with file size : should have a whole number of data blocks')
 
-            num_data_blocks = int(bytes_remaining / bytes_per_block)
+            # num_data_blocks = int(bytes_remaining / bytes_per_block)
 
-            num_amplifier_samples = header['num_samples_per_data_block'] * num_data_blocks
-            num_aux_input_samples = int(header['num_samples_per_data_block'] / 4) * num_data_blocks
-            num_supply_voltage_samples = 1 * num_data_blocks
-            num_board_adc_samples = header['num_samples_per_data_block'] * num_data_blocks
-            num_board_dig_in_samples = header['num_samples_per_data_block'] * num_data_blocks
-            num_board_dig_out_samples = header['num_samples_per_data_block'] * num_data_blocks
+            # num_amplifier_samples = header['num_samples_per_data_block'] * num_data_blocks
+            # num_aux_input_samples = int(header['num_samples_per_data_block'] / 4) * num_data_blocks
+            # num_supply_voltage_samples = 1 * num_data_blocks
+            # num_board_adc_samples = header['num_samples_per_data_block'] * num_data_blocks
+            # num_board_dig_in_samples = header['num_samples_per_data_block'] * num_data_blocks
+            # num_board_dig_out_samples = header['num_samples_per_data_block'] * num_data_blocks
 
-            record_time = num_amplifier_samples / header['sample_rate']
+            # record_time = num_amplifier_samples / header['sample_rate']
 
             # calculate how many bytes per block so we can skip unnecessary data
             data_stride = 4 * header['num_samples_per_data_block']  # offset from the t_amplifier
             if header['num_amplifier_channels'] > 0:
-                data_stride += header['num_samples_per_data_block'] * header['num_amplifier_channels'] * 2  # 60 values x X channels x 2 bytes
+                # 60 values x X channels x 2 bytes
+                data_stride += 2 * header['num_samples_per_data_block'] * header['num_amplifier_channels']
 
             if header['num_aux_input_channels'] > 0:
-                data_stride += int(header['num_samples_per_data_block'] / 4) * header['num_aux_input_channels'] * 2
+                data_stride += 2 * int(header['num_samples_per_data_block'] / 4) * header['num_aux_input_channels']
 
             if header['num_supply_voltage_channels'] > 0:
-                data_stride += header['num_supply_voltage_channels'] * 2
+                data_stride += 2 * header['num_supply_voltage_channels']
 
             if header['num_temp_sensor_channels'] > 0:
-                data_stride += header['num_temp_sensor_channels'] * 2
+                data_stride += 2 * header['num_temp_sensor_channels']
 
             if header['num_board_adc_channels'] > 0:
-                data_stride += header['num_samples_per_data_block'] * header['num_board_adc_channels'] * 2
+                data_stride += 2 * header['num_samples_per_data_block'] * header['num_board_adc_channels']
 
             if header['num_board_dig_in_channels'] > 0:
                 data_stride += 2 * header['num_samples_per_data_block']
@@ -1070,8 +1081,91 @@ def is_session_beginning(filename):
             if header['num_board_dig_out_channels'] > 0:
                 data_stride += 2 * header['num_samples_per_data_block']
 
-            data = np.ndarray((1,), ('<I', (1, 1)), m, header_length, (data_stride,)).flatten()
+            if (header['version'][0] == 1 and header['version'][1] >= 2) or (header['version'][0] > 1):
+                data = np.ndarray((1,), ('<i', (1, 1)), m, header_length, (data_stride,)).flatten()
+            else:
+                data = np.ndarray((1,), ('<I', (1, 1)), m, header_length, (data_stride,)).flatten()
 
             if data[0] == 0:
                 return True
             return False
+
+
+def get_time_boundaries(filename):
+    """This function will return true if the file is the beginning of the experiment (starts with a timepoint of 0)
+    otherwise it will return false."""
+    with open(filename, 'rb') as f:
+        with contextlib.closing(mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)) as m:
+            header_length = get_header_length(m)
+
+            header = read_header(filename)  # could probably combine these two functions
+
+            bytes_per_block = get_bytes_per_data_block(header)
+
+            bytes_remaining = len(m) - header_length
+
+            if bytes_remaining % bytes_per_block != 0:
+                raise Exception('Something is wrong with file size : should have a whole number of data blocks')
+
+            num_data_blocks = int(bytes_remaining / bytes_per_block)
+
+            # num_amplifier_samples = header['num_samples_per_data_block'] * num_data_blocks
+            # num_aux_input_samples = int(header['num_samples_per_data_block'] / 4) * num_data_blocks
+            # num_supply_voltage_samples = 1 * num_data_blocks
+            # num_board_adc_samples = header['num_samples_per_data_block'] * num_data_blocks
+            # num_board_dig_in_samples = header['num_samples_per_data_block'] * num_data_blocks
+            # num_board_dig_out_samples = header['num_samples_per_data_block'] * num_data_blocks
+
+            # record_time = num_amplifier_samples / header['sample_rate']
+
+            # calculate how many bytes per block so we can skip unnecessary data
+            data_stride = 4 * header['num_samples_per_data_block']  # offset from the t_amplifier
+            if header['num_amplifier_channels'] > 0:
+                # 60 values x X channels x 2 bytes, offset from amplifier_data
+                data_stride += 2 * header['num_samples_per_data_block'] * header['num_amplifier_channels']
+
+            if header['num_aux_input_channels'] > 0:
+                # offset from aux_input_data
+                data_stride += 2 * int(header['num_samples_per_data_block'] / 4) * header['num_aux_input_channels']
+
+            if header['num_supply_voltage_channels'] > 0:
+                # offset from supply_voltage_data
+                data_stride += 2 * header['num_supply_voltage_channels']
+
+            if header['num_temp_sensor_channels'] > 0:
+                # offset from temp_sensor_data
+                data_stride += 2 * header['num_temp_sensor_channels']
+
+            if header['num_board_adc_channels'] > 0:
+                # offset from board_adc_data
+                data_stride += 2 * header['num_samples_per_data_block'] * header['num_board_adc_channels']
+
+            if header['num_board_dig_in_channels'] > 0:
+                # offset from board_dig_in_raw
+                data_stride += 2 * header['num_samples_per_data_block']
+
+            if header['num_board_dig_out_channels'] > 0:
+                # offset from board_dig_out_raw
+                data_stride += 2 * header['num_samples_per_data_block']
+
+            if (header['version'][0] == 1 and header['version'][1] >= 2) or (header['version'][0] > 1):
+                start = np.ndarray((1,), ('<i', (1, 1)), m, header_length,
+                                   (data_stride,)).flatten()
+
+                # it takes the last time sample, of the last data block
+                header_length += int((num_data_blocks - 1) * data_stride) + \
+                                 4 * (header['num_samples_per_data_block'] - 1)
+
+                stop = np.ndarray((1,), ('<i', (1, 1)), m, header_length,
+                                  (data_stride,)).flatten()
+            else:
+                start = np.ndarray((1,), ('<I', (1, 1)), m, header_length,
+                                   (data_stride,)).flatten()
+                # it takes the last time sample, of the last data block
+                header_length += int((num_data_blocks - 1) * data_stride) + \
+                                 4 * (header['num_samples_per_data_block'] - 1)
+
+                stop = np.ndarray((1,), ('<I', (1, 1)), m, header_length,
+                                  (data_stride,)).flatten()
+
+            return start[0], stop[0]
