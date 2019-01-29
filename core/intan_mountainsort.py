@@ -82,7 +82,8 @@ def validate_session(directory, tint_basename, output_basename, self=None, verbo
         mda_basename = os.path.splitext(file)[0]
         mda_basename = mda_basename[:find_sub(mda_basename, '_')[-1]]
 
-        masked_out_fname = mda_basename + '_masked.mda'
+        # masked file no longer required
+        # masked_out_fname = mda_basename + '_masked.mda'
         firings_out = mda_basename + '_firings.mda'
 
         # we will skip the pre_out because if the user decided not to whiten, then this wouldn't be there
@@ -91,12 +92,14 @@ def validate_session(directory, tint_basename, output_basename, self=None, verbo
 
         # check if these outputs have already been created, skip if they have
         existing_files = 0
-        output_files = [masked_out_fname, firings_out, metrics_out_fname]
+        output_files = [firings_out,
+                        metrics_out_fname,
+                        # masked_out_fname,
+                        ]
         for outfile in output_files:
             if os.path.exists(outfile):
                 existing_files += 1
             else:
-                # print(outfile)
                 pass
 
         if existing_files != len(output_files):
@@ -165,7 +168,7 @@ def validate_session(directory, tint_basename, output_basename, self=None, verbo
 def convert_bin_mountainsort(directory, tint_basename, whiten='true', detect_interval=10, detect_sign=0,
                              detect_threshold=3, freq_min=300, freq_max=6000, mask_threshold=6,
                              masked_chunk_size=None, mask_num_write_chunks=100, clip_size=50, notch_filter=False,
-                             self=None):
+                             pre_spike=15, post_spike=35, mask=True, self=None):
 
     tint_fullpath = os.path.join(directory, tint_basename)
 
@@ -200,13 +203,22 @@ def convert_bin_mountainsort(directory, tint_basename, whiten='true', detect_int
              freq_max=freq_max, mask_threshold=mask_threshold,
              masked_chunk_size=masked_chunk_size,
              mask_num_write_chunks=mask_num_write_chunks,
-             clip_size=clip_size, self=self)
+             clip_size=clip_size, mask=mask, self=self)
 
     # create positions
     convert_position(bin_filename, pos_filename, converted_set_filename, self=self)
 
     # create tetrodes / cut
-    batch_basename_tetrodes(directory, tint_basename, output_basename, self=self)
+    batch_basename_tetrodes(directory, tint_basename, output_basename,  pre_spike=pre_spike, post_spike=post_spike,
+                            mask=mask, self=self)
 
     # create eeg / egf
     convert_eeg(set_filename, output_basename, self=self)
+
+    msg = '[%s %s]: Finished converting the following session: %s!' % \
+          (str(datetime.datetime.now().date()),
+           str(datetime.datetime.now().time())[:8], tint_basename)
+    if self:
+        self.LogAppend.myGUI_signal_str.emit(msg)
+    else:
+        print(msg)

@@ -94,8 +94,8 @@ class Window(QtWidgets.QWidget):  # defines the window class (main window)
         self.detect_sign_combo.addItem("Positive and Negative Peaks")
         self.detect_sign_combo.currentIndexChanged.connect(self.detect_sign_changed)
         # self.detect_sign = -1  # initializing detect_sign value
-        self.detect_sign = 0  # initializing detect_sign value
-        self.detect_sign_combo.setCurrentIndex(2)  # set default to negative peaks
+        self.detect_sign = 1  # initializing detect_sign value
+        self.detect_sign_combo.setCurrentIndex(0)  # set default to negative peaks
 
         detect_sign_layout = QtWidgets.QHBoxLayout()
         detect_sign_layout.addWidget(QtWidgets.QLabel("Detect Sign:"))

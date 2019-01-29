@@ -310,7 +310,12 @@ def sort_finished(terminal_output_filename, max_time=600):
 
 def sort_bin(directory, tint_fullpath, whiten='true', detect_interval=10, detect_sign=0, detect_threshold=3,
              freq_min=300, freq_max=6000, mask_threshold=6, masked_chunk_size=None, mask_num_write_chunks=100,
-             clip_size=50, self=None):
+             clip_size=50, mask=True, self=None):
+
+    if mask:
+        mask = 'true'
+    else:
+        mask = 'false'
 
     tint_basename = os.path.basename(tint_fullpath)
 
@@ -323,13 +328,17 @@ def sort_bin(directory, tint_fullpath, whiten='true', detect_interval=10, detect
         mda_basename = os.path.splitext(file)[0]
         mda_basename = mda_basename[:find_sub(mda_basename, '_')[-1]]
 
-        masked_out_fname = get_ubuntu_path(mda_basename + '_masked.mda')
         firings_out = get_ubuntu_path(mda_basename + '_firings.mda')
 
         if whiten == 'true':
             pre_out_fname = get_ubuntu_path(mda_basename + '_pre.mda')
         else:
             pre_out_fname = None
+
+        if mask == 'true':
+            masked_out_fname = get_ubuntu_path(mda_basename + '_masked.mda')
+        else:
+            masked_out_fname = None
 
         metrics_out_fname = get_ubuntu_path(mda_basename + '_metrics.json')
 
@@ -376,7 +385,7 @@ def sort_bin(directory, tint_fullpath, whiten='true', detect_interval=10, detect
                      detect_threshold=detect_threshold, freq_min=freq_min, freq_max=freq_max,
                      mask_threshold=mask_threshold,
                      mask_chunk_size=masked_chunk_size, mask_num_write_chunks=mask_num_write_chunks,
-                     whiten=whiten,
+                     whiten=whiten, mask_artifacts=mask,
                      clip_size=clip_size, terminal_text_filename=terminal_text_filename)
 
             # wait for the sort to finish before continuing

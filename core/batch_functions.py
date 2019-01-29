@@ -2,7 +2,6 @@ import os, datetime, time
 from PyQt5 import QtWidgets
 from core.intan_mountainsort import convert_bin_mountainsort, validate_session
 import json
-from core.Tint_Matlab import get_active_tetrode
 
 whiten = 'true'  # do you want to whiten the data?
 # whiten = 'false'
@@ -43,6 +42,9 @@ else:
     automate_threshold = True
     # automate_threshold = False
 
+pre_spike = 15
+post_spike = 35
+
 # bandpass filtering parameters, don't really know this
 freq_min = 300  # this doesn't really matter because data is already filtered so it won't do the filtering
 freq_max = 7000  # this doesn't really matter because data is already filtered so it won't do the filtering
@@ -53,6 +55,8 @@ freq_max = 7000  # this doesn't really matter because data is already filtered s
 # above mask_threshold SD's from the average bin RSS, it will consider it as high amplitude noise
 # and remove this chunk (and neighboring chunks).
 
+# mask = True
+mask = False
 mask_threshold = 6  # units: SD's
 masked_chunk_size = None  # if none it will default to Fs/10
 mask_num_write_chunks = 100  #
@@ -188,7 +192,8 @@ def BatchAnalyze(main_window, directory):
                         tint_basename = os.path.basename(os.path.splitext(bin_fullfile)[0])
                         tint_fullpath = os.path.join(analysis_directory, tint_basename)
                         output_basename = '%s_ms' % tint_fullpath
-                        session_valid = validate_session(analysis_directory, tint_basename, output_basename, self=main_window,
+                        session_valid = validate_session(analysis_directory, tint_basename, output_basename,
+                                                         self=main_window,
                                                          verbose=False)
 
                         if not session_valid:
@@ -228,7 +233,9 @@ def BatchAnalyze(main_window, directory):
                                                  masked_chunk_size=masked_chunk_size,
                                                  mask_num_write_chunks=mask_num_write_chunks,
                                                  clip_size=clip_size,
-                                                 notch_filter=notch_filter, self=main_window)
+                                                 notch_filter=notch_filter, pre_spike=pre_spike, post_spike=post_spike,
+                                                 mask=mask,
+                                                 self=main_window)
 
                         main_window.analyzed_sessions.append(main_window.current_session)
 
