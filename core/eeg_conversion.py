@@ -16,20 +16,6 @@ def create_eeg(filename, data, Fs, set_filename, DC_Blocker=True):
 
     Fs_EGF = int(4.8e3)  # sampling rate of .EGF files
     Fs_EEG = int(250)
-    """
-    if DC_Blocker:
-        data = sp.Filtering().dcblock(data, 0.1, Fs)
-
-    # LP at 500
-    data = sp.Filtering().iirfilt(bandtype='low', data=data, Fs=Fs, Wp=500, order=6,
-                                  automatic=0, Rp=0.1, filttype='cheby1', showresponse=0)
-
-    # notch filter the data
-    # data = sp.Filtering().notch_filt(data, Fs, freq=60, band=10, order=3)
-    data = filt.notch_filt(data, Fs, freq=60, band=10, order=2)
-
-    # downsample to 4.8khz signal for EGF signal (EEG is derived from EGF data)
-    """
 
     data = data[:, 0::int(Fs / Fs_EGF)]
 
@@ -203,21 +189,6 @@ def create_egf(filename, data, Fs, set_filename, DC_Blocker=True):
         return
 
     Fs_EGF = int(4.8e3)  # sampling rate of .EGF files
-
-    """
-    if DC_Blocker:
-        data = sp.Filtering().dcblock(data, 0.1, Fs)
-
-    # LP at 500
-    data = sp.Filtering().iirfilt(bandtype='low', data=data, Fs=Fs, Wp=500, order=6,
-                                  automatic=0, Rp=0.1, filttype='cheby1', showresponse=0)
-
-    # notch filter the data
-    # data = sp.Filtering().notch_filt(data, Fs, freq=60, band=10, order=3)
-    data = filt.notch_filt(data, Fs, freq=60, band=10, order=2)
-
-    # downsample to 4.8khz signal for EGF signal (EEG is derived from EGF data)
-    """
 
     data = data[:, 0::int(Fs / Fs_EGF)]
 

@@ -42,7 +42,7 @@ def bin2mda(bin_filename, set_filename, Fs=48e3, notch_filter=True, notch_freq=6
 
     for tetrode in active_tetrodes:
 
-        tetrode_channels = get_channel_from_tetrode(tetrode)
+        # tetrode_channels = get_channel_from_tetrode(tetrode)
 
         msg = '[%s %s]: Converting the following tetrode: %d!' % \
               (str(datetime.datetime.now().date()),
@@ -67,14 +67,13 @@ def bin2mda(bin_filename, set_filename, Fs=48e3, notch_filter=True, notch_freq=6
                 print(msg)
             continue
 
-        ##### get_tetrode_data
+        # get_tetrode_data
         data = get_bin_data(bin_filename, tetrode=tetrode)
 
         if notch_filter:
             data = notch_filt(data, Fs, freq=notch_freq)
-            # data = data.astype(np.int16)
 
-        #### append any values if we want to make the duration even
+        # append any values if we want to make the duration even
         data = np.int16(data)
 
         _writemda(data, mda_filename, 'int16')

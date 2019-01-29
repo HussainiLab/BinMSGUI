@@ -25,6 +25,17 @@ def find_sub(string, sub):
     return result
 
 
+def get_ref_index(channel_info, ref):
+    """
+    This function will find the index (1-based) for a given channel name
+    using Intan's native_channel_name structure (i.e. A-000, A-001, A-002, etc.)
+    """
+    for i, channel in enumerate(channel_info):
+        if channel['native_channel_name'] == ref:
+            return i + 1
+    raise ValueError("The following channel name does not exist: %s" % ref)
+
+
 def get_intan_data(session_files, data_channels=None, tetrode=None, self=None, verbose=None, tetrode_data=True,
                    digital_data=True):
 
@@ -345,6 +356,8 @@ def read_header(filename):
                                                'digital_edge_polarity': trigger_values[3]}
 
                         new_channel['native_order'] = values[0]
+                        new_channel['custom_order'] = values[1]
+
                         signal_type = values[2]
                         channel_enabled = values[3]
 
@@ -402,6 +415,7 @@ def rhd_duration(filename):
 
 def get_probe_name(filename, default_probe='axona16_new'):
     """We save the probe name as the settings filename so we know how to map each probe"""
+
     probe = read_header(filename)['settings_filename']
     if probe == '':
         # there was a time before we had this ability and we just used the axona16_new probe

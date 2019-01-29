@@ -18,10 +18,6 @@ def get_set_header(set_filename):
 def create_pos(pos_filename, set_filename, pos_data):
     n = int(pos_data.shape[0])
 
-    # session_path, session_filename = os.path.split(pos_filename)
-    # tint_basename = os.path.splitext(session_filename)[0]
-    # set_filename = os.path.join(session_path, '%s.set' % tint_basename)
-
     if os.path.exists(pos_filename):
         return
 
@@ -88,10 +84,6 @@ def create_pos(pos_filename, set_filename, pos_data):
             write_list.append(bytes(value, 'utf-8'))
 
         onespot = 1  # this is just in case we decide to add other modes.
-
-        # write_list = [bytes(headers, 'utf-8')]
-
-        # write_list.append()
 
         if onespot:
             position_format_string = 'i8h'

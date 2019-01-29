@@ -239,9 +239,15 @@ def run_sort(*, raw_fname=None, filt_fname=None, pre_fname=None, geom_fname=None
 def sort_finished(terminal_output_filename, max_time=600):
     # wait for the terminal output to exist
 
-    # max_time = max time in secoinds to wait
+    # max_time = max time in seconds to wait
 
+    start_time = time.time()
     while not os.path.exists(terminal_output_filename):
+        # this is for those odd times where you are the text file never is created due to some odd error. Usually
+        # is fixed by pressing enter on the terminal, but this should automate it.
+        if time.time() - start_time >= max_time:
+            # we've waited long enough for the file to sort.
+            return False, "Retry"
         time.sleep(0.1)
 
     sort_invalid_string = ['Process returned with non-zero exit code']
