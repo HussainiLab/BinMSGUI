@@ -61,6 +61,10 @@ mask_threshold = 6  # units: SD's
 masked_chunk_size = None  # if none it will default to Fs/10
 mask_num_write_chunks = 100  #
 
+# feature parameters
+num_features = 10
+max_num_clips_for_pca = 1000
+
 # random parameters, probably don't need to change
 
 clip_size = 50  # this needs to be left at 50 for Tint, Tint only likes 50 samples
@@ -235,6 +239,8 @@ def BatchAnalyze(main_window, directory):
                                                  clip_size=clip_size,
                                                  notch_filter=notch_filter, pre_spike=pre_spike, post_spike=post_spike,
                                                  mask=mask,
+                                                 num_features=num_features,
+                                                 max_num_clips_for_pca=max_num_clips_for_pca,
                                                  self=main_window)
 
                         main_window.analyzed_sessions.append(main_window.current_session)

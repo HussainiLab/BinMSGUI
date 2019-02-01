@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from core.readBin import get_bin_data, get_active_tetrode, get_channel_from_tetrode
+from core.readBin import get_bin_data, get_active_tetrode
 import datetime
 from core.mountainsort_functions import _writemda
 from core.filtering import notch_filt

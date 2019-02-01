@@ -116,13 +116,14 @@ def run_pipeline_js(pipeline, inputs, outputs, parameters=None, verbose=False, t
 
 
 def run_sort(*, raw_fname=None, filt_fname=None, pre_fname=None, geom_fname=None, params_fname=None,
-                 firings_out, filt_out_fname=None, pre_out_fname=None, metrics_out_fname=None, masked_out_fname=None,
-                 freq_min=300, freq_max=7000, samplerate=30000, detect_sign=1,
-                 adjacency_radius=-1, detect_threshold=3, detect_interval=10, clip_size=50,
-                 firing_rate_thresh=0.05, isolation_thresh=0.95, noise_overlap_thresh=0.03,
-                 peak_snr_thresh=1.5, mask_artifacts='true', whiten='true',
-                 mask_threshold=6, mask_chunk_size=2000, terminal_text_filename=None,
-                 mask_num_write_chunks=15, num_workers=os.cpu_count(), verbose=True):
+             firings_out, filt_out_fname=None, pre_out_fname=None, metrics_out_fname=None, masked_out_fname=None,
+             freq_min=300, freq_max=7000, samplerate=30000, detect_sign=1,
+             adjacency_radius=-1, detect_threshold=3, detect_interval=10, clip_size=50,
+             firing_rate_thresh=0.05, isolation_thresh=0.95, noise_overlap_thresh=0.03,
+             peak_snr_thresh=1.5, mask_artifacts='true', whiten='true',
+             mask_threshold=6, mask_chunk_size=2000, terminal_text_filename=None,
+             mask_num_write_chunks=15, num_features=10, max_num_clips_for_pca=1000,
+             num_workers=os.cpu_count(), verbose=True):
     """
     Custom Sorting Pipeline. It will pre-process, sort, and curate (using ms_taggedcuration pipeline).
 
@@ -225,15 +226,30 @@ def run_sort(*, raw_fname=None, filt_fname=None, pre_fname=None, geom_fname=None
     if masked_out_fname is not None:
         outputs['masked_out_fname'] = masked_out_fname
 
-    parameters = {'freq_min': freq_min, 'freq_max': freq_max, 'samplerate': samplerate,
-                  'detect_sign': detect_sign, 'adjacency_radius': adjacency_radius,
-                  'detect_threshold': detect_threshold, 'detect_interval': detect_interval,
-                  'clip_size': clip_size, 'firing_rate_thresh': firing_rate_thresh, 'isolation_thresh': isolation_thresh,
-                  'noise_overlap_thresh': noise_overlap_thresh, 'peak_snr_thresh': peak_snr_thresh,
-                  'mask_artifacts': mask_artifacts, 'mask_chunk_size': mask_chunk_size, 'mask_threshold': mask_threshold,
-                  'mask_num_write_chunks': mask_num_write_chunks, 'num_workers': num_workers, 'whiten': whiten}
+    parameters = {'freq_min': freq_min,
+                  'freq_max': freq_max,
+                  'samplerate': samplerate,
+                  'detect_sign': detect_sign,
+                  'adjacency_radius': adjacency_radius,
+                  'detect_threshold': detect_threshold,
+                  'detect_interval': detect_interval,
+                  'clip_size': clip_size,
+                  'firing_rate_thresh': firing_rate_thresh,
+                  'isolation_thresh': isolation_thresh,
+                  'noise_overlap_thresh': noise_overlap_thresh,
+                  'peak_snr_thresh': peak_snr_thresh,
+                  'mask_artifacts': mask_artifacts,
+                  'mask_chunk_size': mask_chunk_size,
+                  'mask_threshold': mask_threshold,
+                  'mask_num_write_chunks': mask_num_write_chunks,
+                  'num_workers': num_workers,
+                  'whiten': whiten,
+                  'num_features': num_features,
+                  'max_num_clips_for_pca': max_num_clips_for_pca,
+                  }
 
-    run_pipeline_js(pipeline, inputs, outputs, parameters, verbose=verbose, terminal_text_filename=terminal_text_filename)
+    run_pipeline_js(pipeline, inputs, outputs, parameters, verbose=verbose,
+                    terminal_text_filename=terminal_text_filename)
 
 
 def sort_finished(terminal_output_filename, max_time=600):
@@ -310,7 +326,7 @@ def sort_finished(terminal_output_filename, max_time=600):
 
 def sort_bin(directory, tint_fullpath, whiten='true', detect_interval=10, detect_sign=0, detect_threshold=3,
              freq_min=300, freq_max=6000, mask_threshold=6, masked_chunk_size=None, mask_num_write_chunks=100,
-             clip_size=50, mask=True, self=None):
+             clip_size=50, mask=True, num_features=10, max_num_clips_for_pca=1000, self=None):
 
     if mask:
         mask = 'true'
@@ -386,7 +402,9 @@ def sort_bin(directory, tint_fullpath, whiten='true', detect_interval=10, detect
                      mask_threshold=mask_threshold,
                      mask_chunk_size=masked_chunk_size, mask_num_write_chunks=mask_num_write_chunks,
                      whiten=whiten, mask_artifacts=mask,
-                     clip_size=clip_size, terminal_text_filename=terminal_text_filename)
+                     clip_size=clip_size,
+                     num_features=num_features, max_num_clips_for_pca=max_num_clips_for_pca,
+                     terminal_text_filename=terminal_text_filename)
 
             # wait for the sort to finish before continuing
             finished, sort_code = sort_finished(get_windows_filename(terminal_text_filename))

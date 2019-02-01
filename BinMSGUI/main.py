@@ -1,10 +1,10 @@
 import sys, os, json, time
-from PIL import Image
+# from PIL import Image
 from PyQt5 import QtCore, QtWidgets
-from core.batch_functions import BatchAnalyze
-from core.gui_utils import background, gui_name, center
-from core.ChooseDirectory import Choose_Dir
-from core.addSessions import RepeatAddSessions
+from BinMSGUI.core.batch_functions import BatchAnalyze
+from BinMSGUI.core.gui_utils import background, gui_name, center
+from BinMSGUI.core.ChooseDirectory import Choose_Dir
+from BinMSGUI.core.addSessions import RepeatAddSessions
 
 _author_ = "Geoffrey Barrett"  # defines myself as the author
 
@@ -101,11 +101,11 @@ class Window(QtWidgets.QWidget):  # defines the window class (main window)
         detect_sign_layout.addWidget(QtWidgets.QLabel("Detect Sign:"))
         detect_sign_layout.addWidget(self.detect_sign_combo)
 
-        self.detect_threshold_widget = QtWidgets.QSpinBox()
+        self.detect_threshold_widget = QtWidgets.QLineEdit()
         detect_threshold_layout = QtWidgets.QHBoxLayout()
         detect_threshold_layout.addWidget(QtWidgets.QLabel("Detect Threshold:"))
         detect_threshold_layout.addWidget(self.detect_threshold_widget)
-        self.detect_threshold_widget.setValue(3)
+        self.detect_threshold_widget.setText('3')
 
         self.whiten_cb = QtWidgets.QCheckBox('Whiten')
         self.whiten_cb.toggle()  # set the default to whiten

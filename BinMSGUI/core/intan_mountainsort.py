@@ -168,7 +168,8 @@ def validate_session(directory, tint_basename, output_basename, self=None, verbo
 def convert_bin_mountainsort(directory, tint_basename, whiten='true', detect_interval=10, detect_sign=0,
                              detect_threshold=3, freq_min=300, freq_max=6000, mask_threshold=6,
                              masked_chunk_size=None, mask_num_write_chunks=100, clip_size=50, notch_filter=False,
-                             pre_spike=15, post_spike=35, mask=True, self=None):
+                             pre_spike=15, post_spike=35, mask=True, num_features=10, max_num_clips_for_pca=1000,
+                             self=None):
 
     tint_fullpath = os.path.join(directory, tint_basename)
 
@@ -203,7 +204,9 @@ def convert_bin_mountainsort(directory, tint_basename, whiten='true', detect_int
              freq_max=freq_max, mask_threshold=mask_threshold,
              masked_chunk_size=masked_chunk_size,
              mask_num_write_chunks=mask_num_write_chunks,
-             clip_size=clip_size, mask=mask, self=self)
+             clip_size=clip_size, mask=mask,
+             num_features=num_features, max_num_clips_for_pca=max_num_clips_for_pca,
+             self=self)
 
     # create positions
     convert_position(bin_filename, pos_filename, converted_set_filename, self=self)
