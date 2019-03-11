@@ -3,33 +3,12 @@
   <component name="ChangeListManager">
     <list default="true" id="e3a45516-af7a-4c8c-8770-4eb60748b76d" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BinMSGUI.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/ChooseDirectory.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/Tint_Matlab.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/addSessions.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/batch_functions.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/bin2mda.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/convert_position.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/cut_creation.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/eeg_conversion.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/filtering.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/gui_utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/intan_mountainsort.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/intan_rhd_functions.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mdaSort.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/mountainsort_functions.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/readBin.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/readMDA.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/rhd_utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/set_conversion.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/tetrode_conversion.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/wsl_terminal.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/img/cumc-crown.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/img/desktop.ini" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings/batch_settings.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings/directory.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BinMSGUI/core/batch_functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/BinMSGUI/core/batch_functions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BinMSGUI/core/intan_mountainsort.py" beforeDir="false" afterPath="$PROJECT_DIR$/BinMSGUI/core/intan_mountainsort.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BinMSGUI/core/mountainsort_functions.py" beforeDir="false" afterPath="$PROJECT_DIR$/BinMSGUI/core/mountainsort_functions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BinMSGUI/jupyter/binMSGUI_refactored.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/BinMSGUI/jupyter/binMSGUI_refactored.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BinMSGUI/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/BinMSGUI/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -40,40 +19,128 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/BinMSGUI/core/addSessions.py">
+        <entry file="file://$PROJECT_DIR$/BinMSGUI/core/intan_mountainsort.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="377">
-              <caret line="24" column="18" lean-forward="true" selection-start-line="24" selection-start-column="18" selection-end-line="24" selection-end-column="18" />
+            <state relative-caret-position="382">
+              <caret line="235" selection-start-line="235" selection-end-line="235" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
+                <element signature="e#492#6170#0" />
+                <element signature="e#6334#7780#0" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/BinMSGUI/core/intan_mountainsort.py">
+        <entry file="file://$PROJECT_DIR$/BinMSGUI/core/mountainsort_functions.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2311">
-              <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/BinMSGUI/core/mdaSort.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="262">
-              <caret line="124" column="82" selection-start-line="124" selection-start-column="39" selection-end-line="124" selection-end-column="82" />
+            <state relative-caret-position="17">
+              <caret line="1" column="2" selection-start-line="1" selection-start-column="2" selection-end-line="1" selection-end-column="2" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../IntanMSGUI/IntanMSGUI/main.py">
+        <entry file="file://$PROJECT_DIR$/BinMSGUI/core/set_conversion.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="102">
-              <caret line="12" selection-start-line="12" selection-end-line="12" />
+            <state>
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/BinMSGUI/core/eeg_conversion.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="262">
+              <caret line="34" column="22" selection-start-line="34" selection-start-column="16" selection-end-line="34" selection-end-column="22" />
+              <folding>
+                <element signature="e#0#9#0" expanded="true" />
+                <element signature="e#1965#2496#0" />
+                <element signature="e#2557#4778#0" />
+                <element signature="e#4845#5795#0" />
+                <element signature="e#5836#6018#0" />
+                <element signature="e#6092#7523#0" />
+                <element signature="e#7587#11938#0" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/BinMSGUI/core/bin2mda.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="34">
+              <caret line="2" column="6" selection-start-line="2" selection-start-column="6" selection-end-line="2" selection-end-column="6" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/_pydev_imps/_pydev_execfile.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="289">
+              <caret line="17" selection-start-line="17" selection-end-line="17" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/BinMSGUI/core/default_parameters.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1037">
+              <caret line="61" column="25" selection-start-line="61" selection-start-column="25" selection-end-line="61" selection-end-column="25" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/BinMSGUI/core/tetrode_conversion.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="3247">
+              <caret line="198" column="38" selection-start-line="198" selection-start-column="38" selection-end-line="198" selection-end-column="38" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/BinMSGUI/core/intan_rhd_functions.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1003">
+              <caret line="606" column="74" selection-start-line="606" selection-start-column="74" selection-end-line="606" selection-end-column="74" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+                <element signature="e#287#645#0" />
+                <element signature="e#690#1053#0" />
+                <element signature="e#1212#4311#0" />
+                <element signature="e#4356#5846#0" />
+                <element signature="e#5898#6252#0" />
+                <element signature="e#6297#7110#0" />
+                <element signature="e#7318#9364#0" />
+                <element signature="e#9398#16221#0" />
+                <element signature="e#16256#17054#0" />
+                <element signature="e#17120#17435#0" />
+                <element signature="e#17467#24789#0" />
+                <element signature="e#24843#25941#0" />
+                <element signature="e#26013#26398#0" />
+                <element signature="e#26480#28999#0" />
+                <element signature="e#29087#29481#0" />
+                <element signature="e#29566#29930#0" />
+                <element signature="e#30067#35193#0" />
+                <element signature="e#35258#36448#0" />
+                <element signature="e#36478#37172#0" />
+                <element signature="e#37229#40928#0" />
+                <element signature="e#40981#43190#0" />
+                <element signature="e#43244#44103#0" />
+                <element signature="e#44146#47184#0" />
+                <element signature="e#47226#51330#0" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -81,8 +148,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/BinMSGUI/core/batch_functions.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2869">
-              <caret line="62" selection-start-line="62" selection-end-line="62" />
+            <state relative-caret-position="51">
+              <caret line="3" selection-start-line="3" selection-end-line="3" />
             </state>
           </provider>
         </entry>
@@ -98,11 +165,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>original</find>
-      <find>remove_spike_scalar</find>
-      <find>clu_</find>
-      <find>create_cut</find>
-      <find>get_windows_filename</find>
       <find>myGUI_signal.</find>
       <find>sort_finsih</find>
       <find>sort_fin</find>
@@ -128,6 +190,11 @@
       <find>convert_bin_mountainsort</find>
       <find>run_sort</find>
       <find>num_features</find>
+      <find>QThread</find>
+      <find>toggle</find>
+      <find>detect_sign</find>
+      <find>detect_threshold</find>
+      <find>astype</find>
     </findStrings>
     <replaceStrings>
       <replace>myGUI_signal_str.</replace>
@@ -161,31 +228,32 @@
         <option value="$PROJECT_DIR$/BinMSGUI.py" />
         <option value="$PROJECT_DIR$/core/bin2mda.py" />
         <option value="$PROJECT_DIR$/BinMSGUI/core/__main__.py" />
-        <option value="$PROJECT_DIR$/setup.py" />
         <option value="$PROJECT_DIR$/BinMSGUI/__init__.py" />
         <option value="$PROJECT_DIR$/BinMSGUI/core/__init__.py" />
-        <option value="$PROJECT_DIR$/BinMSGUI/main.py" />
         <option value="$PROJECT_DIR$/BinMSGUI/core/readMDA.py" />
         <option value="$PROJECT_DIR$/BinMSGUI/core/addSessions.py" />
-        <option value="$PROJECT_DIR$/BinMSGUI/core/intan_mountainsort.py" />
         <option value="$PROJECT_DIR$/../IntanMSGUI/IntanMSGUI/__init__.py" />
-        <option value="$PROJECT_DIR$/BinMSGUI/core/batch_functions.py" />
         <option value="$PROJECT_DIR$/BinMSGUI/core/mdaSort.py" />
+        <option value="$PROJECT_DIR$/setup.py" />
+        <option value="$PROJECT_DIR$/BinMSGUI/core/batch_functions.py" />
+        <option value="$PROJECT_DIR$/BinMSGUI/main.py" />
+        <option value="$PROJECT_DIR$/BinMSGUI/core/intan_mountainsort.py" />
+        <option value="$PROJECT_DIR$/BinMSGUI/core/default_parameters.py" />
+        <option value="$PROJECT_DIR$/BinMSGUI/core/mountainsort_functions.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-8" />
-    <option name="y" value="-8" />
-    <option name="width" value="1936" />
-    <option name="height" value="1176" />
+  <component name="ProjectFrameBounds" extendedState="7">
+    <option name="x" value="-1288" />
+    <option name="y" value="161" />
+    <option name="width" value="1296" />
+    <option name="height" value="1000" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -208,6 +276,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -235,7 +304,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.main (2)">
+  <component name="RunManager" selected="Python.main (1)">
     <configuration name="__main__ (1)" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="BinMSGUI" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -343,8 +412,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.main (2)" />
         <item itemvalue="Python.main (1)" />
+        <item itemvalue="Python.main (2)" />
         <item itemvalue="Python.__main__ (1)" />
         <item itemvalue="Python.__main__" />
         <item itemvalue="Python.main" />
@@ -365,10 +434,10 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1176" extended-state="6" />
+    <frame x="-1288" y="161" width="1296" height="1000" extended-state="7" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.15331928" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.23131956" />
       <window_info id="Structure" order="1" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -408,123 +477,28 @@
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="3" weight="0.25" />
     </layout-to-restore>
   </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/../IntanMSGUI/IntanMSGUI/main.py</url>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/core/batch_functions.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
-          <caret line="2" column="60" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="60" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/intan_mountainsort.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="196" column="19" selection-start-line="196" selection-start-column="4" selection-end-line="196" selection-end-column="19" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python37/Lib/site-packages/BatchTINTV3/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="31">
-          <caret line="220" column="17" lean-forward="true" selection-start-line="220" selection-start-column="17" selection-end-line="220" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/Google Drive/CUMC/Code/Python/Notebooks/BinMSGUI/bin2mda.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="7" selection-start-line="7" selection-end-line="7" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python37/Lib/site-packages/BatchTINTV3/__main__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="5" lean-forward="true" selection-start-line="5" selection-end-line="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/BinMSGUI.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="92" column="54" selection-start-line="92" selection-start-column="54" selection-end-line="92" selection-end-column="54" />
-          <folding>
-            <element signature="e#0#26#0" expanded="true" />
-            <element signature="e#603#1868#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/bin2mda.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="476">
-          <caret line="55" selection-start-line="55" selection-end-line="55" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/rhd_utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="205">
-          <caret line="18" column="45" selection-start-line="18" selection-start-column="45" selection-end-line="18" selection-end-column="45" />
-          <folding>
-            <element signature="e#1480#2145#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/intan_rhd_functions.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="205">
-          <caret line="682" column="9" selection-start-line="682" selection-start-column="9" selection-end-line="682" selection-end-column="9" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/mountainsort_functions.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="205">
-          <caret line="31" column="30" selection-start-line="31" selection-start-column="30" selection-end-line="31" selection-end-column="30" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="442">
-          <caret line="26" column="26" selection-start-line="26" selection-start-column="26" selection-end-line="26" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/mdaSort.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="408">
-          <caret line="48" selection-start-line="48" selection-end-line="48" />
-          <folding>
-            <element signature="e#0#43#0" expanded="true" />
-            <element signature="e#477#1121#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/BinMSGUI/core/__main__.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/BinMSGUI/test/__init__.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
+    <entry file="file://$USER_HOME$/Google Drive/CUMC/Code/Python/Notebooks/BinMSGUI/bin2mda.py" />
+    <entry file="file://C:/Python37/Lib/site-packages/BatchTINTV3/__main__.py" />
+    <entry file="file://$PROJECT_DIR$/BinMSGUI.py" />
+    <entry file="file://$PROJECT_DIR$/core/bin2mda.py" />
+    <entry file="file://$PROJECT_DIR$/core/rhd_utils.py" />
+    <entry file="file://$PROJECT_DIR$/core/intan_rhd_functions.py" />
+    <entry file="file://$PROJECT_DIR$/core/mountainsort_functions.py" />
+    <entry file="file://$PROJECT_DIR$/core/utils.py" />
+    <entry file="file://$PROJECT_DIR$/core/mdaSort.py" />
+    <entry file="file://$PROJECT_DIR$/BinMSGUI/core/__main__.py" />
+    <entry file="file://$PROJECT_DIR$/BinMSGUI/test/__init__.py" />
     <entry file="file://$PROJECT_DIR$/BinMSGUI/__main__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="85">
@@ -611,26 +585,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/setup.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="22" column="16" selection-start-line="22" selection-start-column="16" selection-end-line="22" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/BinMSGUI/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
-          <caret line="17" column="38" selection-start-line="17" selection-start-column="38" selection-end-line="17" selection-end-column="38" />
-          <folding>
-            <element signature="e#0#26#0" expanded="true" />
-            <element signature="e#28142#28384#0" />
-            <element signature="e#28414#29108#0" />
-            <element signature="e#29176#29605#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/BinMSGUI/core/readMDA.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="68">
@@ -638,13 +592,6 @@
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/BinMSGUI/core/bin2mda.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
-          <caret line="2" column="6" selection-start-line="2" selection-start-column="6" selection-end-line="2" selection-end-column="6" />
         </state>
       </provider>
     </entry>
@@ -666,38 +613,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/BinMSGUI/core/eeg_conversion.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/BinMSGUI/core/gui_utils.py">
       <provider selected="true" editor-type-id="text-editor">
         <state>
           <folding>
             <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/BinMSGUI/core/intan_rhd_functions.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/BinMSGUI/core/mountainsort_functions.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -716,24 +636,6 @@
         <state>
           <folding>
             <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/BinMSGUI/core/set_conversion.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/BinMSGUI/core/tetrode_conversion.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -775,20 +677,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../IntanMSGUI/IntanMSGUI/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="12" selection-start-line="12" selection-end-line="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/BinMSGUI/core/batch_functions.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2869">
-          <caret line="62" selection-start-line="62" selection-end-line="62" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../IntanMSGUI/IntanMSGUI/__main__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="85">
@@ -796,27 +684,163 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$APPLICATION_HOME_DIR$/helpers/typeshed/stdlib/2and3/datetime.pyi">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="4" column="13" lean-forward="true" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../IntanMSGUI/IntanMSGUI/main.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
     <entry file="file://$PROJECT_DIR$/BinMSGUI/core/addSessions.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="377">
-          <caret line="24" column="18" lean-forward="true" selection-start-line="24" selection-start-column="18" selection-end-line="24" selection-end-column="18" />
+        <state relative-caret-position="340">
+          <caret line="24" column="18" selection-start-line="24" selection-start-column="18" selection-end-line="24" selection-end-column="18" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/BinMSGUI/core/intan_mountainsort.py">
+    <entry file="file://$PROJECT_DIR$/BinMSGUI/core/mdaSort.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2311">
-          <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
+        <state relative-caret-position="85">
+          <caret line="11" column="13" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/BinMSGUI/core/mdaSort.py">
+    <entry file="file://$PROJECT_DIR$/setup.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="7" selection-start-line="7" selection-end-line="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/BinMSGUI/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="11" selection-start-line="11" selection-end-line="11" />
+          <folding>
+            <element signature="e#0#26#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/BinMSGUI/core/intan_mountainsort.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="382">
+          <caret line="235" selection-start-line="235" selection-end-line="235" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+            <element signature="e#492#6170#0" />
+            <element signature="e#6334#7780#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/BinMSGUI/core/mountainsort_functions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="2" selection-start-line="1" selection-start-column="2" selection-end-line="1" selection-end-column="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/BinMSGUI/core/set_conversion.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/BinMSGUI/core/bin2mda.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="2" column="6" selection-start-line="2" selection-start-column="6" selection-end-line="2" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/_pydev_imps/_pydev_execfile.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="289">
+          <caret line="17" selection-start-line="17" selection-end-line="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/BinMSGUI/core/default_parameters.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1037">
+          <caret line="61" column="25" selection-start-line="61" selection-start-column="25" selection-end-line="61" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/BinMSGUI/core/tetrode_conversion.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3247">
+          <caret line="198" column="38" selection-start-line="198" selection-start-column="38" selection-end-line="198" selection-end-column="38" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/BinMSGUI/core/intan_rhd_functions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1003">
+          <caret line="606" column="74" selection-start-line="606" selection-start-column="74" selection-end-line="606" selection-end-column="74" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+            <element signature="e#287#645#0" />
+            <element signature="e#690#1053#0" />
+            <element signature="e#1212#4311#0" />
+            <element signature="e#4356#5846#0" />
+            <element signature="e#5898#6252#0" />
+            <element signature="e#6297#7110#0" />
+            <element signature="e#7318#9364#0" />
+            <element signature="e#9398#16221#0" />
+            <element signature="e#16256#17054#0" />
+            <element signature="e#17120#17435#0" />
+            <element signature="e#17467#24789#0" />
+            <element signature="e#24843#25941#0" />
+            <element signature="e#26013#26398#0" />
+            <element signature="e#26480#28999#0" />
+            <element signature="e#29087#29481#0" />
+            <element signature="e#29566#29930#0" />
+            <element signature="e#30067#35193#0" />
+            <element signature="e#35258#36448#0" />
+            <element signature="e#36478#37172#0" />
+            <element signature="e#37229#40928#0" />
+            <element signature="e#40981#43190#0" />
+            <element signature="e#43244#44103#0" />
+            <element signature="e#44146#47184#0" />
+            <element signature="e#47226#51330#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/BinMSGUI/core/batch_functions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="51">
+          <caret line="3" selection-start-line="3" selection-end-line="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/BinMSGUI/core/eeg_conversion.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="262">
-          <caret line="124" column="82" selection-start-line="124" selection-start-column="39" selection-end-line="124" selection-end-column="82" />
+          <caret line="34" column="22" selection-start-line="34" selection-start-column="16" selection-end-line="34" selection-end-column="22" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+            <element signature="e#1965#2496#0" />
+            <element signature="e#2557#4778#0" />
+            <element signature="e#4845#5795#0" />
+            <element signature="e#5836#6018#0" />
+            <element signature="e#6092#7523#0" />
+            <element signature="e#7587#11938#0" />
+          </folding>
         </state>
       </provider>
     </entry>

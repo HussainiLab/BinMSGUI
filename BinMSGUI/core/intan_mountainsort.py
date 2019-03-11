@@ -61,7 +61,8 @@ def validate_session(directory, tint_basename, output_basename, self=None, verbo
 
     for tetrode in tetrodes:
 
-        mda_filename = '%s_T%d_filt.mda' % (os.path.join(directory, tint_basename), tetrode)
+        # mda_filename = '%s_T%d_filt.mda' % (os.path.join(directory, tint_basename), tetrode)
+        mda_filename = '%s_T%d_firings.mda' % (os.path.join(directory, tint_basename), tetrode)
 
         if os.path.exists(mda_filename):
             converted_files += 1
@@ -72,19 +73,24 @@ def validate_session(directory, tint_basename, output_basename, self=None, verbo
         return True
 
     # check that all the tetrodes have been converted
-    raw_fnames = [os.path.join(directory, file) for file in os.listdir(
-        directory) if '_filt.mda' in file if tint_basename in file]
+    # raw_fnames = [os.path.join(directory, file) for file in os.listdir(
+    #     directory) if '_filt.mda' in file if tint_basename in file]
+
+    firing_fnames = [os.path.join(directory, file) for file in os.listdir(
+        directory) if '_firings.mda' in file if tint_basename in file]
 
     eeg_filenames = []
     egf_filenames = []
 
-    for file in raw_fnames:
+    # for file in raw_fnames:
+    for file in firing_fnames:
         mda_basename = os.path.splitext(file)[0]
         mda_basename = mda_basename[:find_sub(mda_basename, '_')[-1]]
 
         # masked file no longer required
         # masked_out_fname = mda_basename + '_masked.mda'
-        firings_out = mda_basename + '_firings.mda'
+        # firings_out = mda_basename + '_firings.mda'
+        firings_out = file
 
         # we will skip the pre_out because if the user decided not to whiten, then this wouldn't be there
         # pre_out_fname = mda_basename + '_pre.mda'
@@ -165,6 +171,44 @@ def validate_session(directory, tint_basename, output_basename, self=None, verbo
     return False
 
 
+def cleanup_files(directory, tint_basename, delete_pre=True, delete_firings=False, delete_masked=True,
+                  delete_filt=True, delete_raw=True):
+    """
+    This function will iterate through files that were created, and delete files that we don't need just to save space.
+    :return:
+    """
+    delete_files = []
+
+    if delete_pre:
+        pre_filenames = [os.path.join(directory, file) for file in os.listdir(
+            directory) if '_pre.mda' in file if os.path.basename(tint_basename) in file]
+        delete_files.extend(pre_filenames)
+
+    if delete_firings:
+        firing_filenames = [os.path.join(directory, file) for file in os.listdir(
+            directory) if '_firings.mda' in file if os.path.basename(tint_basename) in file]
+        delete_files.extend(firing_filenames)
+
+    if delete_masked:
+        masked_filenames = [os.path.join(directory, file) for file in os.listdir(
+            directory) if '_masked.mda' in file if os.path.basename(tint_basename) in file]
+        delete_files.extend(masked_filenames)
+
+    if delete_filt:
+        filt_filenames = [os.path.join(directory, file) for file in os.listdir(
+            directory) if '_filt.mda' in file if os.path.basename(tint_basename) in file]
+        delete_files.extend(filt_filenames)
+
+    if delete_raw:
+        filt_filenames = [os.path.join(directory, file) for file in os.listdir(
+            directory) if '_raw.mda' in file if os.path.basename(tint_basename) in file]
+        delete_files.extend(filt_filenames)
+
+    if len(delete_files) > 0:
+        for file in delete_files:
+            os.remove(file)
+
+
 def convert_bin_mountainsort(directory, tint_basename, whiten='true', detect_interval=10, detect_sign=0,
                              detect_threshold=3, freq_min=300, freq_max=6000, mask_threshold=6,
                              masked_chunk_size=None, mask_num_write_chunks=100, clip_size=50, notch_filter=False,
@@ -225,3 +269,27 @@ def convert_bin_mountainsort(directory, tint_basename, whiten='true', detect_int
         self.LogAppend.myGUI_signal_str.emit(msg)
     else:
         print(msg)
+
+    # clean up any files to save space
+    if mask:
+        delete_masked = False
+        delete_filt = True
+    else:
+        delete_filt = False
+        delete_masked = True
+
+    # we will always delete the preprocessed data, we have the output from the sorting so we won't really need it
+    # we will save the firings in case we want to view the data in MountainView, and if the user decides to mask
+    # the data we will delete the filt and keep the mask. If the user decides not to mask, we will keep the filtered
+    # and delete the masked which won't exist anyways.
+
+    msg = '[%s %s]: Deleting unnecessary intermediate files from MountainSort.' % \
+          (str(datetime.datetime.now().date()),
+           str(datetime.datetime.now().time())[:8])
+    if self:
+        self.LogAppend.myGUI_signal_str.emit(msg)
+    else:
+        print(msg)
+
+    cleanup_files(directory, tint_basename, delete_pre=True, delete_firings=False, delete_masked=delete_masked,
+                  delete_filt=delete_filt, delete_raw=True)

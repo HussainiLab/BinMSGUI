@@ -36,14 +36,15 @@ def get_ref_index(channel_info, ref):
     raise ValueError("The following channel name does not exist: %s" % ref)
 
 
-def get_intan_data(session_files, data_channels=None, tetrode=None, self=None, verbose=None, tetrode_data=True,
-                   digital_data=True):
+def get_intan_data(session_files, data_channels=None, tetrode=None, self=None, verbose=None, ephys_data=True,
+                   digital_data=True, analog_data=True):
 
     file_header = read_header(session_files[0])
 
     data = np.array([])
     t_intan = np.array([])
     data_digital_in = np.array([])
+    data_analog_in = np.array([])
     # concatenates the data from all the .rhd files
 
     if data_channels is not None:
@@ -80,7 +81,8 @@ def get_intan_data(session_files, data_channels=None, tetrode=None, self=None, v
             else:
                 print(msg)
 
-        file_data = read_data(session_file)
+        file_data = read_data(session_file, include_analog=analog_data, include_digital=digital_data,
+                              include_ephys=ephys_data)
 
         # Acquiring session information
 
@@ -92,7 +94,15 @@ def get_intan_data(session_files, data_channels=None, tetrode=None, self=None, v
                 else:
                     data_digital_in = np.concatenate((data_digital_in, file_data['board_dig_in_data']), axis=1)
 
-        if tetrode_data:
+        if analog_data:
+            # read the analog data
+            if file_header['num_board_adc_channels'] > 0:
+                if data_analog_in.shape[0] == 0:
+                    data_analog_in = file_data['board_adc_data']
+                else:
+                    data_analog_in = np.concatenate((data_analog_in, file_data['board_adc_data']), axis=1)
+
+        if ephys_data:
             # read the ephys data
             if data_channels is None:
                 data_channels = np.arange(file_data['amplifier_data'].shape[0])+1
@@ -113,7 +123,7 @@ def get_intan_data(session_files, data_channels=None, tetrode=None, self=None, v
             # to each time value
             t_intan = np.concatenate((t_intan, file_data['t_amplifier']), axis=0)
 
-    return data, t_intan, data_digital_in
+    return data, t_intan, data_digital_in, data_analog_in
 
 
 def get_bytes_per_data_block(header):
@@ -167,9 +177,7 @@ def get_qstring(data, qstring_start):
 
     qstring_length = 4  # from the first 4 bytes which will be used to computer the string length
     length = np.fromstring(data[qstring_start:qstring_start + qstring_length], dtype='<I')
-    # print(data[qstring_start:qstring_start+qstring_length])
     if length == int('ffffffff', 16):
-        print('hello')
         return '', 4  # for the 4 bytes used for the length
     else:
         length = length[0]
@@ -278,7 +286,6 @@ def read_header(filename):
             header['notes'] = notes
 
             if (version[0] == 1 and version[1] >= 6) or (version[0] > 1):
-                # settings_filename = read_qstring(fid)
                 settings_filename, qstring_length = get_qstring(data, note_start)
                 note_start += qstring_length
             else:
@@ -294,7 +301,9 @@ def read_header(filename):
                 header_offset += 2
 
             # if data file is from GUI v1.3 or later, load eval board mode
+            header['eval_board_mode'] = 0
             if version[0] == 1 and version[1] >= 3 or version[0] > 1:
+                header['eval_board_mode'] = np.fromstring(data[header_offset:header_offset + 2], dtype='<h')[0]
                 header_offset += 2
 
             header['num_samples_per_data_block'] = 60
@@ -324,7 +333,6 @@ def read_header(filename):
             header['board_dig_in_channels'] = []
             header['board_dig_out_channels'] = []
 
-            # print(number_of_signal_groups)
             for signal_group in np.arange(number_of_signal_groups):
                 # qstring_start = header_length
                 for i in range(2):
@@ -424,7 +432,7 @@ def get_probe_name(filename, default_probe='axona16_new'):
         return probe
 
 
-def read_data(filename):
+def read_data(filename, include_ephys=True, include_analog=True, include_digital=True):
     with open(filename, 'rb') as f:
 
         with contextlib.closing(mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)) as m:
@@ -448,13 +456,8 @@ def read_data(filename):
             num_data_blocks = int(bytes_remaining / bytes_per_block)
 
             num_amplifier_samples = header['num_samples_per_data_block'] * num_data_blocks
-            # num_aux_input_samples = int((header['num_samples_per_data_block'] / 4) * num_data_blocks)
-            # num_supply_voltage_samples = 1 * num_data_blocks
             num_board_adc_samples = header['num_samples_per_data_block'] * num_data_blocks
             num_board_dig_in_samples = header['num_samples_per_data_block'] * num_data_blocks
-            # num_board_dig_out_samples = header['num_samples_per_data_block'] * num_data_blocks
-
-            # record_time = num_amplifier_samples / header['sample_rate']
 
             # calculate how many bytes per block so we can skip unnecessary data
             data_stride = 4 * header['num_samples_per_data_block']  # offset from the t_amplifier
@@ -493,15 +496,17 @@ def read_data(filename):
 
                 data['amplifier_data'] = np.zeros([header['num_amplifier_channels'], num_amplifier_samples],
                                                   dtype=np.uint)
+                if include_digital and header['num_board_dig_in_channels'] > 0 and num_board_dig_in_samples > 0:
+                    data['board_dig_in_data'] = np.zeros([header['num_board_dig_in_channels'],
+                                                          num_board_dig_in_samples],
+                                                         dtype=np.uint)
 
-                if header['num_board_dig_in_channels'] > 0:
-                    if num_board_dig_in_samples > 0:
-                        data['board_dig_in_data'] = np.zeros([header['num_board_dig_in_channels'],
-                                                              num_board_dig_in_samples],
-                                                             dtype=np.uint)
+                    data['board_dig_in_raw'] = np.zeros(num_board_dig_in_samples,
+                                                        dtype=np.uint)
 
-                        data['board_dig_in_raw'] = np.zeros(num_board_dig_in_samples,
-                                                            dtype=np.uint)
+                if include_analog and header['num_board_adc_channels'] > 0 and num_board_adc_samples > 0:
+                    data['board_adc_data'] = np.zeros([header['num_board_adc_channels'], num_board_adc_samples],
+                                                        dtype=np.uint16)
 
                 if (header['version'][0] == 1 and header['version'][1] >= 2) or (header['version'][0] > 1):
                     data['t_amplifier'] = np.ndarray((num_data_blocks,),
@@ -523,15 +528,17 @@ def read_data(filename):
                                                       header['num_samples_per_data_block'])),
                                          m, get_offset(header, header_length, 'amplifier_data'),
                                          (data_stride,))
+                if include_ephys:
+                    for i in range(header['num_amplifier_channels']):
+                        data['amplifier_data'][i, :] = data_values[:, i, :].reshape((1, -1))
+                    data_values = None
 
-                for i in range(header['num_amplifier_channels']):
-                    data['amplifier_data'][i, :] = data_values[:, i, :].reshape((1, -1))
-
-                if header['num_board_dig_in_channels'] > 0:
+                if include_digital and header['num_board_dig_in_channels'] > 0:
                     if num_board_dig_in_samples > 0:
                         data['board_dig_in_raw'] = np.ndarray((num_data_blocks,),
                                                               ('<H', (1, header['num_samples_per_data_block'])),
-                                                              m, get_offset(header, header_length, 'board_dig_in_raw'),
+                                                              m, get_offset(header, header_length,
+                                                                            'board_dig_in_raw'),
                                                               (data_stride,)).flatten()
 
                     for i in range(header['num_board_dig_in_channels']):
@@ -542,20 +549,23 @@ def read_data(filename):
                         # remove the board_dig_in_raw since we no longer need it
                     data.pop('board_dig_in_raw', None)
 
-                if header['num_board_adc_channels'] > 0:
-                    if num_board_adc_samples > 0:
-                        data['board_adc_data'] = np.ndarray((num_data_blocks,),
-                                                              ('<H', (header['num_board_adc_channels'],
-                                                                      header['num_samples_per_data_block'])),
-                                                              m, get_offset(header, header_length, 'board_adc_data'),
-                                                              (data_stride,)).flatten().reshape((
-                            header['num_board_adc_channels'], -1))
+                if include_analog and header['num_board_adc_channels'] > 0 and num_board_adc_samples > 0:
+                    data_values = np.ndarray((num_data_blocks,), (np.uint16, (header['num_board_adc_channels'],
+                                                                              header['num_samples_per_data_block'])),
+                                             m, get_offset(header, header_length, 'board_adc_data'), (data_stride,))
 
-                data_values = None
+                    for i in range(header['num_board_adc_channels']):
+                        data['board_adc_data'][i, :] = data_values[:, i, :].reshape((1, -1))
+
+                    # .flatten().reshape((header['num_board_adc_channels'], -1))
+
                 m = None
 
                 # convert from unsigned to signed
                 data['amplifier_data'] = data['amplifier_data'].astype(np.int32) - 32768  # bits
+
+                if include_analog and header['num_board_adc_channels'] > 0 and num_board_adc_samples > 0:
+                    data['board_adc_data'] = data['board_adc_data'].astype(np.int32) - 32768  # bits
 
                 # convert from sample number to time (in seconds)
                 data['t_amplifier'] = data['t_amplifier'] / header['sample_rate']
@@ -563,7 +573,18 @@ def read_data(filename):
     return data
 
 
+def get_analog_scalar(session_files):
+    file_header = read_header(session_files[0])
+    if file_header['eval_board_mode'] == 1:
+        scalar = 152.59e-6
+    elif file_header['eval_board_mode'] == 13:
+        scalar = 312.5e-6
+    return scalar
+
+
 def get_offset(header, header_length, output):
+    offset = header_length
+
     if output == 'amplifier_data':
         offset = header_length + 4 * header['num_samples_per_data_block']
 
@@ -590,11 +611,14 @@ def get_cue_json_parameter(directory, tint_basename, parameter):
 
     if os.path.exists(cues_filename):
         with open(cues_filename, 'r') as f:
-
             values = json.load(f)
-
         if parameter in list(values.keys()):
-            parameter_value = int(values[parameter])
+            try:
+                # this is a legacy, should be a string instead of an integer, but this is just to keep it c
+                # compatible with old code
+                parameter_value = int(values[parameter])
+            except ValueError:
+                parameter_value = values[parameter]
         else:
             return None
 
@@ -604,7 +628,8 @@ def get_cue_json_parameter(directory, tint_basename, parameter):
     return parameter_value
 
 
-def get_data_limits(directory, tint_basename, data_digital_in, self=None):
+def get_data_limits(directory, tint_basename, data_digital_in, data_analog_in, self=None, default_start_stop_pin='0D',
+                    minimum_analog_value=3):
     """
     This will get the beginning and end indices of the data defined by when digital channel used to deliver the start
     and stop signal is set to high.
@@ -613,18 +638,49 @@ def get_data_limits(directory, tint_basename, data_digital_in, self=None):
     :param tint_basename: the tint basename of file that was used to produced the '*_cues.json' file.
     :param data_digital_in: the digital input data
     :param self: the self variable for the GUI (if used by a GUI)
+    :param default_start_stop_pin:
     :return:
     """
-    default_start_stop_pin = 0
+    # default_start_stop_pin = 0
 
-    start_stop_pin = get_cue_json_parameter(directory, tint_basename, 'Start/Stop Digital Input:')
+    Analog = False
+    Digital = False
+
+    start_stop_pin = get_cue_json_parameter(directory, tint_basename, 'Start/Stop Input:')
+    if start_stop_pin is None:
+        start_stop_pin = get_cue_json_parameter(directory, tint_basename, 'Start/Stop Digital Input:')
 
     if start_stop_pin is None:
         start_stop_pin = default_start_stop_pin
-    else:
-        start_stop_pin = int(start_stop_pin)
 
-    start_stop_index = detect_peaks(data_digital_in[start_stop_pin, :], mpd=1, mph=0, threshold=0)
+    if type(start_stop_pin) == str:
+        if 'A' in start_stop_pin:
+            Analog = True
+        elif 'D' in start_stop_pin:
+            Digital = True
+        start_stop_pin = int(start_stop_pin[:-1])
+    elif type(start_stop_pin) == int:
+        # then it is the old version where everything was on digital, set digital to true
+        Digital = True
+
+    start_stop_index = None
+    if Digital:
+        start_stop_index = detect_peaks(data_digital_in[start_stop_pin, :], mpd=1, mph=0, threshold=0)
+    elif Analog:
+        # we will convert the data to volts in this case, and use the output voltage from the raspberry pi
+        # (minimum analog_value) as the minimum height (we went slightly below the 3.3 value and just did 3 to keep
+        # it safe.
+        # we will convert the data to volts in this case, and use the output voltage from the raspberry pi
+        # (minimum analog_value) as the minimum height (we went slightly below the 3.3 value and just did 3 to keep
+        # it safe. In this I have also clipped the data at 3 because it is analog which means it can take on more
+        # numbers than just 0 and 1, and thus you would get many values being considered "peaks" when it should really
+        # just be the 1 index that it reaches the theoretical 3.3V.
+        session_files = [os.path.join(directory, tint_basename + '.rhd')]
+        analog_scalar = get_analog_scalar(session_files)
+        data_analog_in = np.multiply(analog_scalar, data_analog_in[start_stop_pin, :])
+        data_analog_in[np.where(data_analog_in >= minimum_analog_value)[0]] = minimum_analog_value
+        start_stop_index = detect_peaks(data_analog_in, mpd=1, mph=minimum_analog_value, threshold=0)
+
     if len(start_stop_index) > 2:
         # This is odd but I have seen a few indices where the start/stop had the correct start/stop signal, but
         # also received a few of the other signals as well across its channel. Not entirely sure why. We will just
@@ -663,38 +719,141 @@ def get_data_limits(directory, tint_basename, data_digital_in, self=None):
     return start_stop_index[0], start_stop_index[1]
 
 
-def get_reward_indices(directory, tint_basename, data_digital_in, start_index):
+def get_reward_indices(directory, tint_basename, data_digital_in, data_analog_in, start_index, default_reward_pin='0A',
+                       minimum_analog_value=3):
 
-    default_reward_pin = 2
+    # default_reward_pin = 2
+    Analog = False
+    Digital = False
 
-    reward_pin = get_cue_json_parameter(directory, tint_basename, 'Reward Digital Input:')
-
+    reward_pin = get_cue_json_parameter(directory, tint_basename, 'Reward Input:')
     if reward_pin is None:
+        # Reward Digital Input: was the legacy value, was changed
+        reward_pin = get_cue_json_parameter(directory, tint_basename, 'Reward Digital Input:')
+    if reward_pin is None:
+        # then just use the default
         reward_pin = default_reward_pin
-    else:
-        reward_pin = int()
 
-    # we will offset by the start_index
-    reward_indices = detect_peaks(data_digital_in[reward_pin, :], mpd=1, mph=0, threshold=0) - start_index
+    if type(reward_pin) == str:
+        if 'A' in reward_pin:
+            Analog = True
+        elif 'D' in reward_pin:
+            Digital = True
+        reward_pin = int(reward_pin[:-1])
+    elif type(reward_pin) == int:
+        # then it is the old version where everything was on digital, set digital to true
+        Digital = True
+
+    reward_indices = None
+    if Digital:
+        # we will offset by the start_index
+        reward_indices = detect_peaks(data_digital_in[reward_pin, :], mpd=1, mph=0, threshold=0) - start_index
+    elif Analog:
+        # we will convert the data to volts in this case, and use the output voltage from the raspberry pi
+        # (minimum analog_value) as the minimum height (we went slightly below the 3.3 value and just did 3 to keep
+        # it safe.
+        # we will convert the data to volts in this case, and use the output voltage from the raspberry pi
+        # (minimum analog_value) as the minimum height (we went slightly below the 3.3 value and just did 3 to keep
+        # it safe. In this I have also clipped the data at 3 because it is analog which means it can take on more
+        # numbers than just 0 and 1, and thus you would get many values being considered "peaks" when it should really
+        # just be the 1 index that it reaches the theoretical 3.3V.
+        session_files = [os.path.join(directory, tint_basename + '.rhd')]
+        analog_scalar = get_analog_scalar(session_files)
+        data_analog_in = np.multiply(analog_scalar, data_analog_in[reward_pin, :])
+        data_analog_in[np.where(data_analog_in >= minimum_analog_value)[0]] = minimum_analog_value
+        reward_indices = detect_peaks(data_analog_in, mpd=1, mph=minimum_analog_value, threshold=0) - start_index
 
     return reward_indices
 
 
-def get_lap_indices(directory, tint_basename, data_digital_in, start_index):
+def get_lap_indices(directory, tint_basename, data_digital_in, data_analog_in, start_index, default_lap_pin='1D',
+                    minimum_analog_value=3):
 
-    default_lap_pin = 1
+    # default_lap_pin = 1
 
-    lap_pin = get_cue_json_parameter(directory, tint_basename, 'Lap Digital Input:')
+    Analog = False
+    Digital = False
 
+    lap_pin = get_cue_json_parameter(directory, tint_basename, 'Lap Input:')
+    if lap_pin is None:
+        # Lap Digital Input: was the legacy value, was changed
+        lap_pin = get_cue_json_parameter(directory, tint_basename, 'Lap Digital Input:')
     if lap_pin is None:
         lap_pin = default_lap_pin
-    else:
-        lap_pin = int()
 
-    # we will offset by the start_index
-    lap_indices = detect_peaks(data_digital_in[lap_pin, :], mpd=1, mph=0, threshold=0) - start_index
+    if type(lap_pin) == str:
+        if 'A' in lap_pin:
+            Analog = True
+        elif 'D' in lap_pin:
+            Digital = True
+        lap_pin = int(lap_pin[:-1])
+    elif type(lap_pin) == int:
+        # then it is the old version where everything was on digital, set digital to true
+        Digital = True
+
+    lap_indices = None
+    if Digital:
+        # we will offset by the start_index
+        lap_indices = detect_peaks(data_digital_in[lap_pin, :], mpd=1, mph=0, threshold=0) - start_index
+    elif Analog:
+        # we will convert the data to volts in this case, and use the output voltage from the raspberry pi
+        # (minimum analog_value) as the minimum height (we went slightly below the 3.3 value and just did 3 to keep
+        # it safe.
+        # we will convert the data to volts in this case, and use the output voltage from the raspberry pi
+        # (minimum analog_value) as the minimum height (we went slightly below the 3.3 value and just did 3 to keep
+        # it safe. In this I have also clipped the data at 3 because it is analog which means it can take on more
+        # numbers than just 0 and 1, and thus you would get many values being considered "peaks" when it should really
+        # just be the 1 index that it reaches the theoretical 3.3V.
+        session_files = [os.path.join(directory, tint_basename + '.rhd')]
+        analog_scalar = get_analog_scalar(session_files)
+        data_analog_in = np.multiply(analog_scalar, data_analog_in[lap_pin, :])
+        data_analog_in[np.where(data_analog_in >= minimum_analog_value)[0]] = minimum_analog_value
+        lap_indices = detect_peaks(data_analog_in, mpd=1, mph=minimum_analog_value, threshold=0) - start_index
 
     return lap_indices
+
+
+def get_signal_events(directory, tint_basename, parameter_name, data_digital_in, data_analog_in, start_index,
+                      default_pin='0D', minimum_analog_value=3):
+    """
+    from now one we will gather custom signal event times using this function, the rest of the functions are legacy
+    and I'll leave them
+    """
+
+    Analog = False
+    Digital = False
+
+    pin = get_cue_json_parameter(directory, tint_basename, parameter_name)
+    if pin is None:
+        pin = default_pin
+
+    if type(pin) == str:
+        if 'A' in pin:
+            Analog = True
+        elif 'D' in pin:
+            Digital = True
+        pin = int(pin[:-1])
+    elif type(pin) == int:
+        # then it is the old version where everything was on digital, set digital to true
+        Digital = True
+
+    event_indices = None
+    if Digital:
+        # we will offset by the start_index
+        event_indices = detect_peaks(data_digital_in[pin, :], mpd=1, mph=0, threshold=0) - start_index
+    elif Analog:
+        # we will convert the data to volts in this case, and use the output voltage from the raspberry pi
+        # (minimum analog_value) as the minimum height (we went slightly below the 3.3 value and just did 3 to keep
+        # it safe. In this I have also clipped the data at 3 because it is analog which means it can take on more
+        # numbers than just 0 and 1, and thus you would get many values being considered "peaks" when it should really
+        # just be the 1 index that it reaches the theoretical 3.3V.
+        session_files = [os.path.join(directory, tint_basename + '.rhd')]
+        analog_scalar = get_analog_scalar(session_files)
+        data_analog_in = np.multiply(analog_scalar, data_analog_in[pin, :])
+        data_analog_in[np.where(data_analog_in >= minimum_analog_value)[0]] = minimum_analog_value
+        event_indices = detect_peaks(data_analog_in, mpd=1, mph=minimum_analog_value, threshold=0) - start_index
+
+    return event_indices
 
 
 def detect_peaks(x, mph=None, mpd=1, threshold=0, edge='rising',
@@ -986,7 +1145,7 @@ def find_basename_files(basename, directory):
                       file not in (session_file for session in rhd_sessions for session_file in session)]
 
     if len(basename_files) == 1:
-        '''there was only one related .rhd file'''
+        # there was only one related .rhd file
         if basename_files not in (session_file for session in rhd_sessions for session_file in session):
             rhd_sessions.append([basename_files[0]])
             return rhd_sessions
@@ -997,23 +1156,29 @@ def find_basename_files(basename, directory):
         session_beginning = np.asarray(session_beginning).astype(int)
 
         zero_bool = np.where(session_beginning == 0)[0]
-        zero_bool_consec = find_consec(zero_bool)
+        if len(zero_bool) != 0:
+            zero_bool_consec = find_consec(zero_bool)
 
-        for current_session in zero_bool_consec:
-            # we have all the files in this session besides the start so we have to append that value
-            current_session.append(current_session[-1] + 1)
+            for current_session in zero_bool_consec:
+                # we have all the files in this session besides the start so we have to append that value
+                current_session.append(current_session[-1] + 1)
 
-            # print('hi', np.asarray(sorted(basename_files, reverse=True)))
-            current_session = (np.asarray(sorted(basename_files, reverse=True))[current_session]).tolist()
+                current_session = (np.asarray(sorted(basename_files, reverse=True))[current_session]).tolist()
 
-            if current_session not in rhd_sessions:
-                rhd_sessions.append(current_session)
+                if current_session not in rhd_sessions:
+                    rhd_sessions.append(current_session)
+
+        else:
+            # this means that all the sessions belong to their own session, and there are not more than 1 file
+            # for each of these sessions so we will just leave it because later in the code we add the single file
+            # sessions
+            pass
 
         for file in sorted(basename_files, reverse=True):
             # adds the recordings sessions that don't have multiple .rhd files
             if file not in (session_file for session in rhd_sessions for session_file in session):
                 # the files are single file recordings that have not been added yet
-                rhd_sessions.append(file)
+                rhd_sessions.append([file])
 
     return rhd_sessions
 
@@ -1059,17 +1224,6 @@ def is_session_beginning(filename):
 
             if bytes_remaining % bytes_per_block != 0:
                 raise Exception('Something is wrong with file size : should have a whole number of data blocks')
-
-            # num_data_blocks = int(bytes_remaining / bytes_per_block)
-
-            # num_amplifier_samples = header['num_samples_per_data_block'] * num_data_blocks
-            # num_aux_input_samples = int(header['num_samples_per_data_block'] / 4) * num_data_blocks
-            # num_supply_voltage_samples = 1 * num_data_blocks
-            # num_board_adc_samples = header['num_samples_per_data_block'] * num_data_blocks
-            # num_board_dig_in_samples = header['num_samples_per_data_block'] * num_data_blocks
-            # num_board_dig_out_samples = header['num_samples_per_data_block'] * num_data_blocks
-
-            # record_time = num_amplifier_samples / header['sample_rate']
 
             # calculate how many bytes per block so we can skip unnecessary data
             data_stride = 4 * header['num_samples_per_data_block']  # offset from the t_amplifier
@@ -1122,15 +1276,6 @@ def get_time_boundaries(filename):
                 raise Exception('Something is wrong with file size : should have a whole number of data blocks')
 
             num_data_blocks = int(bytes_remaining / bytes_per_block)
-
-            # num_amplifier_samples = header['num_samples_per_data_block'] * num_data_blocks
-            # num_aux_input_samples = int(header['num_samples_per_data_block'] / 4) * num_data_blocks
-            # num_supply_voltage_samples = 1 * num_data_blocks
-            # num_board_adc_samples = header['num_samples_per_data_block'] * num_data_blocks
-            # num_board_dig_in_samples = header['num_samples_per_data_block'] * num_data_blocks
-            # num_board_dig_out_samples = header['num_samples_per_data_block'] * num_data_blocks
-
-            # record_time = num_amplifier_samples / header['sample_rate']
 
             # calculate how many bytes per block so we can skip unnecessary data
             data_stride = 4 * header['num_samples_per_data_block']  # offset from the t_amplifier

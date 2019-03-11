@@ -1,10 +1,12 @@
 import sys, os, json, time
 # from PIL import Image
 from PyQt5 import QtCore, QtWidgets
-from BinMSGUI.core.batch_functions import BatchAnalyze
-from BinMSGUI.core.gui_utils import background, gui_name, center
-from BinMSGUI.core.ChooseDirectory import Choose_Dir
-from BinMSGUI.core.addSessions import RepeatAddSessions
+from core.batch_functions import BatchAnalyze
+from core.gui_utils import background, gui_name, center
+from core.ChooseDirectory import Choose_Dir
+from core.addSessions import RepeatAddSessions
+from BinMSGUI.core.default_parameters import pre_spike, post_spike, detect_sign, detect_threshold, detect_interval
+
 
 _author_ = "Geoffrey Barrett"  # defines myself as the author
 
@@ -22,6 +24,8 @@ class Window(QtWidgets.QWidget):  # defines the window class (main window)
         self.setWindowTitle("%s - Main Window" % gui_name)  # sets the title of the window
         self.current_session = ''
         self.current_subdirectory = ''
+        self.analyzed_sessions = []
+
         self.LogAppend = Communicate()
         self.LogAppend.myGUI_signal_str.connect(self.AppendLog)
 
@@ -46,12 +50,13 @@ class Window(QtWidgets.QWidget):  # defines the window class (main window)
         self.reset_add_thread = False
         self.repeat_thread_active = False
 
+        self.RepeatAddSessionsThread = QtCore.QThread()
+        self.AnalyzeThread = QtCore.QThread()
+
         self.choice = ''
         self.home()  # runs the home function
 
     def home(self):  # defines the home function (the main window)
-
-        self.analyzed_sessions = []
 
         try:  # attempts to open previous directory catches error if file not found
             # No saved directory's need to create file
@@ -71,19 +76,19 @@ class Window(QtWidgets.QWidget):  # defines the window class (main window)
         # -------- settings widgets ------------------------
         self.pre_threshold_widget = QtWidgets.QSpinBox()
         pre_threshold_layout = QtWidgets.QHBoxLayout()
-        pre_threshold_layout.addWidget(QtWidgets.QLabel("Pre-Threshold Samples:"))
+        pre_threshold_layout.addWidget(QtWidgets.QLabel("Pre-Spike Samples:"))
         pre_threshold_layout.addWidget(self.pre_threshold_widget)
         self.pre_threshold_widget.setMinimum(0)
         self.pre_threshold_widget.setMaximum(50)
-        self.pre_threshold_widget.setValue(15)
+        self.pre_threshold_widget.setValue(pre_spike)
 
         self.post_threshold_widget = QtWidgets.QSpinBox()
         post_threshold_layout = QtWidgets.QHBoxLayout()
-        post_threshold_layout.addWidget(QtWidgets.QLabel("Post-Threshold Samples:"))
+        post_threshold_layout.addWidget(QtWidgets.QLabel("Post-Spike Samples:"))
         post_threshold_layout.addWidget(self.post_threshold_widget)
         self.post_threshold_widget.setMinimum(0)
         self.post_threshold_widget.setMaximum(50)
-        self.post_threshold_widget.setValue(35)
+        self.post_threshold_widget.setValue(post_spike)
 
         self.curated_cb = QtWidgets.QCheckBox("Curated")
         self.curated_cb.toggle()  # default it to curated
@@ -93,9 +98,17 @@ class Window(QtWidgets.QWidget):  # defines the window class (main window)
         self.detect_sign_combo.addItem("Negative Peaks")
         self.detect_sign_combo.addItem("Positive and Negative Peaks")
         self.detect_sign_combo.currentIndexChanged.connect(self.detect_sign_changed)
-        # self.detect_sign = -1  # initializing detect_sign value
-        self.detect_sign = 1  # initializing detect_sign value
-        self.detect_sign_combo.setCurrentIndex(0)  # set default to negative peaks
+        self.detect_sign = detect_sign  # initializing detect_sign value
+
+        text_value = None
+        if detect_sign == 0:
+            text_value = 'Positive and Negative Peaks'
+        elif detect_sign == 1:
+            text_value = 'Positive Peaks'
+        elif detect_sign == -1:
+            text_value = 'Negative Peaks'
+
+        self.detect_sign_combo.setCurrentIndex(self.detect_sign_combo.findText(text_value))
 
         detect_sign_layout = QtWidgets.QHBoxLayout()
         detect_sign_layout.addWidget(QtWidgets.QLabel("Detect Sign:"))
@@ -105,7 +118,7 @@ class Window(QtWidgets.QWidget):  # defines the window class (main window)
         detect_threshold_layout = QtWidgets.QHBoxLayout()
         detect_threshold_layout.addWidget(QtWidgets.QLabel("Detect Threshold:"))
         detect_threshold_layout.addWidget(self.detect_threshold_widget)
-        self.detect_threshold_widget.setText('3')
+        self.detect_threshold_widget.setText(str(detect_threshold))
 
         self.whiten_cb = QtWidgets.QCheckBox('Whiten')
         self.whiten_cb.toggle()  # set the default to whiten
@@ -115,7 +128,7 @@ class Window(QtWidgets.QWidget):  # defines the window class (main window)
         detect_interval_layout = QtWidgets.QHBoxLayout()
         detect_interval_layout.addWidget(QtWidgets.QLabel("Detect Interval:"))
         detect_interval_layout.addWidget(self.detect_interval_widget)
-        self.detect_interval_widget.setValue(50)
+        self.detect_interval_widget.setValue(detect_interval)
 
         self.version_combo = QtWidgets.QComboBox()
         self.version_combo.addItem("MountainSort3")
@@ -220,7 +233,7 @@ class Window(QtWidgets.QWidget):  # defines the window class (main window)
             with open(self.settings_fname, 'r+') as filename:
                 settings = json.load(filename)
                 if settings['nonbatch'] == 1:
-                    self.nonbatch_check.toggle
+                    self.nonbatch_check.toggle()
 
         except FileNotFoundError:
             with open(self.settings_fname, 'w') as filename:
@@ -273,16 +286,16 @@ class Window(QtWidgets.QWidget):  # defines the window class (main window)
 
         center(self)  # centers the widget on the screen
 
+        # if self.current_directory_name != 'No Directory Currently Chosen!':
+        # starting adding any existing sessions in a different thread
+        # self.RepeatAddSessionsThread = QtCore.QThread()
+        self.RepeatAddSessionsThread.start()
+
+        self.RepeatAddSessionsWorker = Worker(RepeatAddSessions, self)
+        self.RepeatAddSessionsWorker.moveToThread(self.RepeatAddSessionsThread)
+        self.RepeatAddSessionsWorker.start.emit("start")
+
         self.show()  # shows the widget
-
-        if self.current_directory_name != 'No Directory Currently Chosen!':
-            # starting adding any existing sessions in a different thread
-            self.RepeatAddSessionsThread = QtCore.QThread()
-            self.RepeatAddSessionsThread.start()
-
-            self.RepeatAddSessionsWorker = Worker(RepeatAddSessions, self)
-            self.RepeatAddSessionsWorker.moveToThread(self.RepeatAddSessionsThread)
-            self.RepeatAddSessionsWorker.start.emit("start")
 
     def detect_sign_changed(self):
 
@@ -322,7 +335,7 @@ class Window(QtWidgets.QWidget):  # defines the window class (main window)
         self.run_btn.clicked.disconnect()
         self.run_btn.clicked.connect(self.stopBatch)
 
-        self.AnalyzeThread = QtCore.QThread()
+        # self.AnalyzeThread = QtCore.QThread()
         self.AnalyzeThread.start()
 
         self.AnalyzeWorker = Worker(BatchAnalyze, self, directory)
@@ -611,7 +624,7 @@ class Window(QtWidgets.QWidget):  # defines the window class (main window)
             self.RepeatAddSessionsThread.terminate()
 
         # self.reset_add_thread = False
-        self.RepeatAddSessionsThread = QtCore.QThread()
+        # self.RepeatAddSessionsThread = QtCore.QThread()
         self.RepeatAddSessionsThread.setTerminationEnabled(True)
         self.RepeatAddSessionsThread.start()
 

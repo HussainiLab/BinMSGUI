@@ -21,6 +21,8 @@ setuptools.setup(
     install_requires=
     [
         'PyQt5',
+        'numpy',
+        'scipy',
     ],
     classifiers=[
         "Programming Language :: Python :: 3.7 ",
