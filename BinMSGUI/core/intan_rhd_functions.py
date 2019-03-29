@@ -36,7 +36,7 @@ def get_ref_index(channel_info, ref):
     raise ValueError("The following channel name does not exist: %s" % ref)
 
 
-def get_intan_data(session_files, data_channels=None, tetrode=None, self=None, verbose=None, ephys_data=True,
+def get_intan_data(session_files, data_channels=None, tetrode=None, self=None, verbose=True, ephys_data=True,
                    digital_data=True, analog_data=True):
 
     file_header = read_header(session_files[0])
@@ -55,26 +55,9 @@ def get_intan_data(session_files, data_channels=None, tetrode=None, self=None, v
         # Loads each session and appends them to create one matrix of data for the current tetrode
 
         if verbose:
-            if tetrode is not None:
-                msg = '[%s %s]: Currently loading T%d data from the following file: %s' % \
-                      (str(datetime.datetime.now().date()),
-                       str(datetime.datetime.now().time())[:8], tetrode, session_file)
-
-            else:
-                ch_str = ''
-
-                max_i = len(data_channels)
-                for i, channel in enumerate(data_channels):
-                    if i == max_i - 1 and i != 0:
-                        ch_str += 'and Ch%d' % channel
-                    elif i == max_i - 1 and i == 0:
-                        ch_str += 'Ch%d ' % channel
-                    else:
-                        ch_str += 'Ch%d, ' % channel
-
-                msg = '[%s %s]: Currently loading %s from the following file: %s' % \
-                      (str(datetime.datetime.now().date()),
-                       str(datetime.datetime.now().time())[:8], ch_str, session_file)
+            msg = '[%s %s]: Currently loading data from the following file: %s' % \
+                  (str(datetime.datetime.now().date()),
+                   str(datetime.datetime.now().time())[:8], session_file)
 
             if self:
                 self.LogAppend.myGUI_signal_str.emit(msg)
@@ -432,6 +415,47 @@ def get_probe_name(filename, default_probe='axona16_new'):
         return probe
 
 
+def get_total_num_data_blocks(session_files):
+    total_num_data_blocks = 0
+    for filename in session_files:
+        with open(filename, 'rb') as f:
+            with contextlib.closing(mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)) as m:
+                header_length = get_header_length(m)
+
+                header = read_header(filename)  # could probably combine these two functions
+
+                bytes_per_block = get_bytes_per_data_block(header)
+
+                bytes_remaining = len(m) - header_length
+
+                if bytes_remaining % bytes_per_block != 0:
+                    raise Exception('Something is wrong with file size : should have a whole number of data blocks')
+
+                num_data_blocks = int(bytes_remaining / bytes_per_block)
+        total_num_data_blocks += num_data_blocks
+
+    return total_num_data_blocks
+
+
+def get_num_data_blocks(filename):
+    with open(filename, 'rb') as f:
+        with contextlib.closing(mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)) as m:
+            header_length = get_header_length(m)
+
+            header = read_header(filename)  # could probably combine these two functions
+
+            bytes_per_block = get_bytes_per_data_block(header)
+
+            bytes_remaining = len(m) - header_length
+
+            if bytes_remaining % bytes_per_block != 0:
+                raise Exception('Something is wrong with file size : should have a whole number of data blocks')
+
+            num_data_blocks = int(bytes_remaining / bytes_per_block)
+
+    return num_data_blocks
+
+
 def read_data(filename, include_ephys=True, include_analog=True, include_digital=True):
     with open(filename, 'rb') as f:
 
@@ -557,7 +581,7 @@ def read_data(filename, include_ephys=True, include_analog=True, include_digital
                     for i in range(header['num_board_adc_channels']):
                         data['board_adc_data'][i, :] = data_values[:, i, :].reshape((1, -1))
 
-                    # .flatten().reshape((header['num_board_adc_channels'], -1))
+                    data_values = None
 
                 m = None
 
@@ -1052,87 +1076,11 @@ def find_consec(data):
 
 
 def find_basename_files_old(basename, directory):
-    rhd_sessions = []
+    """
+    This is the old version of the function, it had an issue when one file was missing from the sessions I decided to
+    change the method.
 
-    directory_file_list = os.listdir(directory)  # making a list of all files within the specified directory
-
-    basename_files = [os.path.join(directory, file) for file in directory_file_list
-                      if (basename in file[:len(basename)] and '.rhd' in file and
-                          len(file[len(basename):]) == 18) and
-                      file not in (session_file for session in rhd_sessions for session_file in session)]
-
-    if len(basename_files) == 1:
-        '''there was only one related .rhd file'''
-        if basename_files not in (session_file for session in rhd_sessions for session_file in session):
-            rhd_sessions.append([basename_files[0]])
-            return rhd_sessions
-
-    else:
-
-        recording_times = {}
-        for file in sorted(basename_files, reverse=True):
-            '''getting the create time of each file to see if they were created in succession'''
-            recording_times[session_datetime(file, output='seconds')] = file
-
-        ctimes = list(sorted(recording_times.keys(), reverse=True))
-        ctimes_files = list(sorted(recording_times.values(), reverse=True))
-
-        # add a list of session files to to the rhd_sessions: [[session 1], [session 2]]
-        for file in sorted(basename_files, reverse=True):  # Files created later are first in the list
-
-            # this for loop finds the recording sessions that have multiple .rhd files
-
-            if file not in (session_file for session in rhd_sessions for session_file in session):
-                # make sure the file is not already in a list
-
-                file = os.path.join(directory, file)
-                duration = rhd_duration(file)
-
-                # file_data = None
-                if math.floor(duration) % 60 == 0:
-                    """it's a full length file, rhd files are recorded to the nearest minute"""
-
-                    delta_time = np.rint(duration)
-
-                    d_ctimes = (np.abs(np.diff(ctimes))).astype(np.int32)
-
-                    possible_bool = np.where(((d_ctimes == delta_time) | (d_ctimes == delta_time + 1)))[0]
-
-                    # find the consecutive values to separate the sessions with the same time difference between files
-
-                    if len(possible_bool) == 0:
-                        continue
-
-                    consecutive_bools = find_consec(possible_bool)
-                    # adds a value of 1 to each index since we lost one by taking the difference
-                    consecutive_bools = [[bool_value + 1 for bool_value in session] for session in consecutive_bools]
-
-                    for session in consecutive_bools:
-                        # since we list a value by taking the difference, we are appending that in the beginning
-                        file_indices = [session[0] - 1] + session
-
-                        if ctimes_files.index(file) in file_indices:
-                            session_bool = session
-
-                            break
-
-                    # added 1 since it's a difference, so we lost one index in that process
-                    current_session = ctimes_files[np.amin(session_bool) - 1:np.amax(session_bool) + 1]
-
-                    if current_session not in rhd_sessions:
-                        rhd_sessions.append(current_session)
-
-        for file in sorted(basename_files, reverse=True):
-            # adds the recordings sessions that don't have multiple .rhd files
-            if file not in (session_file for session in rhd_sessions for session_file in session):
-                # the files are single file recordings that have not been added yet
-                rhd_sessions.append(file)
-
-    return rhd_sessions
-
-
-def find_basename_files(basename, directory):
-    """This function will find all the files belonging to a basename within a specified folder. It will do this by
+    This function will find all the files belonging to a basename within a specified folder. It will do this by
     finding where the t=0 values are (the starting files) to separate the list into the respective sessions if there
     are multiple sessions with the same base name."""
     rhd_sessions = []
@@ -1179,6 +1127,55 @@ def find_basename_files(basename, directory):
             if file not in (session_file for session in rhd_sessions for session_file in session):
                 # the files are single file recordings that have not been added yet
                 rhd_sessions.append([file])
+
+    return rhd_sessions
+
+
+def find_basename_files(basename, directory):
+    """
+    This function will find all the files belonging to a basename within a specified folder. It will do this
+    by finding all the files with the same intan basename, looking at the start and stop times of the data within
+    these files and stringing together the consecutive files.
+    """
+    rhd_sessions = []
+
+    directory_file_list = os.listdir(directory)  # making a list of all files within the specified directory
+
+    basename_files = [os.path.join(directory, file) for file in directory_file_list
+                      if (basename in file[:len(basename)] and '.rhd' in file and
+                          len(file[len(basename):]) == 18) and
+                      file not in (session_file for session in rhd_sessions for session_file in session)]
+
+    if len(basename_files) == 1:
+        # there was only one related .rhd file
+        if basename_files not in (session_file for session in rhd_sessions for session_file in session):
+            rhd_sessions.append([basename_files[0]])
+            return rhd_sessions
+
+    else:
+        rhd_sessions = []
+        current_session = []
+        previous_end = None
+        for i, file in enumerate(sorted(basename_files, reverse=False)):
+            fstart, fstop = get_time_boundaries(file)
+            if i == 0:
+                current_session.append(file)
+                previous_end = fstop
+                continue
+
+            if fstart - previous_end == 1:
+                # then it is a continuation of the current session
+                current_session.append(file)
+            else:
+                # this is the beginning of a different session
+                rhd_sessions.append(sorted(current_session, reverse=True))
+                # rhd_sessions.append(current_session)
+                current_session = [file]
+            previous_end = fstop
+
+        if current_session not in rhd_sessions:
+            rhd_sessions.append(sorted(current_session, reverse=True))
+            # rhd_sessions.append(current_session)
 
     return rhd_sessions
 
@@ -1260,8 +1257,11 @@ def is_session_beginning(filename):
 
 
 def get_time_boundaries(filename):
-    """This function will return true if the file is the beginning of the experiment (starts with a timepoint of 0)
-    otherwise it will return false."""
+    """
+    This function will return the beginning and end time point of the session.
+    :param filename:
+    :return:
+    """
     with open(filename, 'rb') as f:
         with contextlib.closing(mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)) as m:
             header_length = get_header_length(m)
