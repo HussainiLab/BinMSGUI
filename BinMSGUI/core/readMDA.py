@@ -4,6 +4,10 @@ import core.intan_rhd_functions as f_intan
 
 
 def readMDA(filename):
+    """
+    This function will read in the .mda file that MountainSort uses.
+    """
+
     with open(filename, 'rb') as f:
 
         code = struct.unpack('<l', f.read(4))[0]
@@ -12,7 +16,7 @@ def readMDA(filename):
             num_dims = code
             code = -1
         else:
-            f.read(4)
+            _ = struct.unpack('<l', f.read(4))[0]
             num_dims = struct.unpack('<l', f.read(4))[0]
 
         S = np.zeros((1, num_dims))
@@ -22,7 +26,8 @@ def readMDA(filename):
 
         N = int(np.prod(S))  # number of spikes
 
-        A = np.zeros((int(S[0, 0]), int(S[0, 1])))
+        # A = np.zeros((int(S[0, 0]), int(S[0, 1])))
+        A = np.zeros(tuple(S.flatten().astype(int)))
 
         if code == -1:
             # complex float
@@ -31,51 +36,42 @@ def readMDA(filename):
             M[0, :] = np.asarray(struct.unpack('<%df' % (N * 2), f.read(N * 2 * 4)))
             A = (M[0, 0:N * 2:2] + 1j * M[0, 1:N * 2:2]).reshape(
                 A.shape, order='F')
-
         elif code == -2:
             # uint8
             A[0, :] = np.asarray(struct.unpack('<%dB' % (N), f.read(N)))
-
         elif code == -3:
             # float, float32
             A = np.asarray(
                 struct.unpack('<%df' % (N), f.read(N * 4))).reshape(
                 A.shape, order='F')  # 4 bytes per float
-
         elif code == -4:
             # short, int16
             A = np.asarray(
                 struct.unpack('<%dh' % (N), f.read(N * 2))).reshape(
                 A.shape, order='F')  # 2 bytes per short
-
         elif code == -5:
             # int, int32
             A = np.asarray(
                 struct.unpack('<%di' % (N), f.read(N * 4))).reshape(
                 A.shape, order='F')  # 2 bytes per int
-
         elif code == -6:
             # uint16
             A = np.asarray(
                 struct.unpack('<%dH' % (N), f.read(N * 2))).reshape(
                 A.shape, order='F')  # 2 bytes per uint16
-
         elif code == -7:
             # double, float64
             # B = struct.unpack('<%dd' % (N), f.read(N*8))
             A = np.asarray(
                 struct.unpack('<%dd' % (N), f.read(N * 8))).reshape(
                 A.shape, order='F')  # 8 bytes per double
-
         elif code == -8:
             # uint32
             A = np.asarray(
                 struct.unpack('<%dI' % (N), f.read(N * 4))).reshape(
                 A.shape, order='F')  # 4 bytes per uint32
-
         else:
             print('Have not coded for this case yet!')
-
             return
 
     return A, code
