@@ -2,7 +2,7 @@
 whiten = 'true'  # do you want to whiten the data?
 # whiten = 'false'
 
-detect_interval = 50  # roughly the number of samples to check for a spike
+detect_interval = 20  # roughly the number of samples to check for a spike
 # the algorithm will take the detect_interval value and bin the data in bin sizes of that many
 # samples. Then it will find the peak (or trough, or both) of each bin and evaluate that event
 # if it exceeds the threshold value.

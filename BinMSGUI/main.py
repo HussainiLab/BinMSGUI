@@ -5,7 +5,7 @@ from core.batch_functions import BatchAnalyze
 from core.gui_utils import background, gui_name, center
 from core.ChooseDirectory import Choose_Dir
 from core.addSessions import RepeatAddSessions
-from BinMSGUI.core.default_parameters import pre_spike, post_spike, detect_sign, detect_threshold, detect_interval
+from core.default_parameters import pre_spike, post_spike, detect_sign, detect_threshold, detect_interval
 
 
 _author_ = "Geoffrey Barrett"  # defines myself as the author

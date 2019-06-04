@@ -42,8 +42,6 @@ def bin2mda(bin_filename, set_filename, Fs=48e3, notch_filter=True, notch_freq=6
 
     for tetrode in active_tetrodes:
 
-        # tetrode_channels = get_channel_from_tetrode(tetrode)
-
         msg = '[%s %s]: Converting the following tetrode: %d!' % \
               (str(datetime.datetime.now().date()),
                str(datetime.datetime.now().time())[:8], tetrode)
@@ -52,7 +50,19 @@ def bin2mda(bin_filename, set_filename, Fs=48e3, notch_filter=True, notch_freq=6
         else:
             print(msg)
 
-        mda_filename = '%s_T%d_filt.mda' % (os.path.join(directory, tint_basename), tetrode)
+        # get_tetrode_data
+        data = get_bin_data(bin_filename, tetrode=tetrode)
+
+        # check if the data has been filtered already
+
+        # TODO: add some methods to find out if the data has been filtered or not
+        data_filtered = True
+
+        if data_filtered:
+            mda_filename = '%s_T%d_filt.mda' % (os.path.join(directory, tint_basename), tetrode)
+        else:
+            # the data has not been filtered
+            mda_filename = '%s_T%d_raw.mda' % (os.path.join(directory, tint_basename), tetrode)
 
         mda_filenames.append(mda_filename)
 
@@ -66,9 +76,6 @@ def bin2mda(bin_filename, set_filename, Fs=48e3, notch_filter=True, notch_freq=6
             else:
                 print(msg)
             continue
-
-        # get_tetrode_data
-        data = get_bin_data(bin_filename, tetrode=tetrode)
 
         if notch_filter:
             data = notch_filt(data, Fs, freq=notch_freq)

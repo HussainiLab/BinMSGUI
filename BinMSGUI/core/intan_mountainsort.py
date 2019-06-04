@@ -244,12 +244,16 @@ def convert_bin_mountainsort(directory, tint_basename, whiten='true', detect_int
     # sort the mda data
     sort_bin(directory, tint_fullpath, whiten=whiten, detect_interval=detect_interval,
              detect_sign=detect_sign,
-             detect_threshold=detect_threshold, freq_min=freq_min,
-             freq_max=freq_max, mask_threshold=mask_threshold,
+             detect_threshold=detect_threshold,
+             freq_min=freq_min,
+             freq_max=freq_max,
+             mask_threshold=mask_threshold,
              masked_chunk_size=masked_chunk_size,
              mask_num_write_chunks=mask_num_write_chunks,
-             clip_size=clip_size, mask=mask,
-             num_features=num_features, max_num_clips_for_pca=max_num_clips_for_pca,
+             clip_size=clip_size,
+             mask=mask,
+             num_features=num_features,
+             max_num_clips_for_pca=max_num_clips_for_pca,
              self=self)
 
     # create positions

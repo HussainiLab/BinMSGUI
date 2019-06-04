@@ -57,6 +57,8 @@ def addSessions(self):
             bin_files = find_bin_basenames(os.path.join(current_directory, directory))
         except FileNotFoundError:
             return
+        except PermissionError:
+            return
 
         if bin_files:
             if directory in added_directories:
