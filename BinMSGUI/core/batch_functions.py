@@ -102,14 +102,6 @@ def BatchAnalyze(main_window, directory):
 
                 main_window.current_session = main_window.directory_item.child(0).data(0, 0)
 
-                if main_window.directory_item.childCount() == 0:
-                    main_window.top_level_taken = False
-                    main_window.modifying_list = True
-                    main_window.RemoveQueueItem.myGUI_signal_str.emit(str(0))
-                    while not main_window.top_level_taken:
-                        time.sleep(0.1)
-                    main_window.modifying_list = False
-
                 try:
                     if not os.path.exists(os.path.join(directory, sub_directory)):
                         main_window.top_level_taken = False
@@ -234,3 +226,12 @@ def BatchAnalyze(main_window, directory):
                             str(datetime.datetime.now().time())[
                             :8], str(sub_directory)))
                     continue
+
+            # remove the directory as there are no more children
+            if main_window.directory_item.childCount() == 0:
+                main_window.top_level_taken = False
+                main_window.modifying_list = True
+                main_window.RemoveQueueItem.myGUI_signal_str.emit(str(0))
+                while not main_window.top_level_taken:
+                    time.sleep(0.1)
+                main_window.modifying_list = False

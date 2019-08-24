@@ -164,7 +164,7 @@ def addSession(self, bin_file, current_directory, directory, added_bin_files, di
     tint_fullpath = os.path.join(directory, tint_basename)
     output_basename = '%s_ms' % tint_fullpath
     session_valid = validate_session(directory, tint_basename, output_basename, self=self, verbose=False)
-    if session_valid and tint_basename != self.current_session:
+    if session_valid:
 
         # only adds the sessions that haven't been added already
         session_item = QtWidgets.QTreeWidgetItem()

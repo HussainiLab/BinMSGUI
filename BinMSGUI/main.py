@@ -185,7 +185,8 @@ class Window(QtWidgets.QWidget):  # defines the window class (main window)
         self.run_btn = QtWidgets.QPushButton('Run', self)  # creates the batch-klusta pushbutton
         self.run_btn.setToolTip('Click to perform batch analysis!')
 
-        self.choose_directory = QtWidgets.QPushButton('Choose Directory', self)  # creates the choose directory pushbutton
+        # creates the choose directory pushbutton
+        self.choose_directory = QtWidgets.QPushButton('Choose Directory', self)
 
         self.current_directory = QtWidgets.QLineEdit()  # creates a line edit to display the chosen directory (current)
         self.current_directory.setText(current_directory_name)  # sets the text to the current directory
@@ -248,7 +249,7 @@ class Window(QtWidgets.QWidget):  # defines the window class (main window)
         # finds the modification date of the program
 
         # creates a label with that information
-        vers_label = QtWidgets.QLabel(("%s V1.0 " % gui_name))
+        vers_label = QtWidgets.QLabel(("%s V1.0.1 " % gui_name))
 
         # ------------------- page layout ----------------------------------------
 
@@ -367,11 +368,17 @@ class Window(QtWidgets.QWidget):  # defines the window class (main window)
         self.current_directory.setEnabled(False)
         self.whiten_cb.setEnabled(False)
         self.nonbatch_check.setEnabled(False)
+        self.up_btn.setEnabled(False)
+        self.down_btn.setEnabled(False)
+        self.choose_directory.setEnabled(False)
 
     def activate_widgets(self):
         self.current_directory.setEnabled(True)
         self.whiten_cb.setEnabled(True)
         self.nonbatch_check.setEnabled(True)
+        self.up_btn.setEnabled(True)
+        self.down_btn.setEnabled(True)
+        self.choose_directory.setEnabled(True)
 
     def run(self):  # function that runs klustakwik
 
@@ -387,7 +394,6 @@ class Window(QtWidgets.QWidget):  # defines the window class (main window)
         self.run_btn.clicked.disconnect()
         self.run_btn.clicked.connect(self.stopBatch)
 
-        # self.AnalyzeThread = QtCore.QThread()
         self.AnalyzeThread.setTerminationEnabled(True)
         self.AnalyzeThread.start()
 
@@ -683,35 +689,16 @@ class Window(QtWidgets.QWidget):  # defines the window class (main window)
         """
 
         # Find the sessions, and populate the conversion queue
-        # self.analyzed_sessions = []
-        # self.directory_queue.clear()
-        # self.restart_add_sessions_thread()
         self.change_directory_time = time.time()
         self.directory_changed = True
 
     def changed_whiten(self):
-        # self.analyzed_sessions = []
-        # self.directory_queue.clear()
-        # self.restart_add_sessions_thread()
         self.change_whiten_time = time.time()
         self.whiten_changed = True
 
     def changed_batch(self):
         self.change_batch_time = time.time()
         self.batch_changed = True
-
-        '''
-        with open(self.settings_fname, 'r+') as filename:
-            settings = json.load(filename)
-            if state:
-                settings['nonbatch'] = 1
-                self.nonbatch = 1
-            else:
-                settings['nonbatch'] = 0
-                self.nonbatch = 0
-        with open(self.settings_fname, 'w') as filename:
-            json.dump(settings, filename)
-        '''
 
     def restart_add_sessions_thread(self):
 
@@ -729,10 +716,6 @@ class Window(QtWidgets.QWidget):  # defines the window class (main window)
         self.RepeatAddSessionsWorker.moveToThread(self.RepeatAddSessionsThread)
         self.RepeatAddSessionsWorker.start.emit("start")
 
-
-
-
-
 def run():
     app = QtWidgets.QApplication(sys.argv)
 
@@ -741,7 +724,6 @@ def run():
 
     main_w.raise_()  # making the main window on top
 
-    # main_w.nonbatch_check.stateChanged.connect(lambda: nonbatch(main_w, main_w.nonbatch_check.isChecked()))
     # brings the directory window to the foreground
     main_w.choose_directory.clicked.connect(lambda: raise_window(choose_dir_w,main_w))
 

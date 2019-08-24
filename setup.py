@@ -10,7 +10,7 @@ pkg_name = "BinMSGUI"
 
 setuptools.setup(
     name=pkg_name,
-    version="1.0.0",
+    version="1.0.1",
     author="Geoffrey Barrett",
     author_email="geoffrey.m.barrett@gmail.com",
     description="BinMSGUI, sorts .bin data through MountainSort and exports as Tint format.",
@@ -23,6 +23,8 @@ setuptools.setup(
         'PyQt5',
         'numpy',
         'scipy',
+        'matplotlib',
+        'jupyter'
     ],
     classifiers=[
         "Programming Language :: Python :: 3.7 ",
