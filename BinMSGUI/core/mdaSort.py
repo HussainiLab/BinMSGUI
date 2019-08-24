@@ -384,7 +384,7 @@ def sort_bin(directory, tint_fullpath, whiten='true', detect_interval=10, detect
         Fs = int(get_setfile_parameter('rawRate', set_filename))
 
         if masked_chunk_size is None:
-            masked_chunk_size = int(Fs/10)
+            masked_chunk_size = int(Fs/20)
 
         sorting = True
         sorting_attempts = 0

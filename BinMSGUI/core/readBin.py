@@ -11,7 +11,7 @@ def get_active_tetrode(set_filename):
     active_tetrode = []
     active_tetrode_str = 'collectMask_'
 
-    with open(set_filename) as f:
+    with open(set_filename, encoding='cp1252') as f:
         for line in f:
 
             # collectMask_X Y, where x is the tetrode number, and Y is eitehr on or off (1 or 0)
@@ -27,7 +27,7 @@ def get_active_tetrode(set_filename):
 
 
 def get_active_eeg(set_filename):
-    """This will return a dictionary (cative_eeg_dict) where the keys
+    """This will return a dictionary (active_eeg_dict) where the keys
     will be eeg channels from 1->64 which will represent the eeg suffixes (2 = .eeg2, 3 = 2.eeg3, etc)
     and the key will be the channel that the EEG maps to (a channel from 0->63)"""
     active_eeg = []
@@ -38,7 +38,7 @@ def get_active_eeg(set_filename):
 
     active_eeg_dict = {}
 
-    with open(set_filename) as f:
+    with open(set_filename, encoding='cp1252') as f:
         for line in f:
 
             if active_eeg_str in line:
@@ -302,3 +302,4 @@ def find_n(iterations, optimal=1000):
         else:
             n -= 1
     return 'abort'
+

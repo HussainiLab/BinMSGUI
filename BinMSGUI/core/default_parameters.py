@@ -1,6 +1,6 @@
 # ----- sorting parameters # -------------
-whiten = 'true'  # do you want to whiten the data?
-# whiten = 'false'
+whiten = True  # do you want to whiten the data?
+# whiten = False
 
 detect_interval = 20  # roughly the number of samples to check for a spike
 # the algorithm will take the detect_interval value and bin the data in bin sizes of that many
@@ -21,7 +21,7 @@ detect_sign = 1  # only positive peaks
 # the data is not normalized and thus, you would be using a bit value, maybe should take whatever
 # value is in the threshold from the set file.
 
-if whiten == 'true':
+if whiten:
     detect_threshold = 4  # units: ~sd's
     # ---------------
     automate_threshold = False  # Don't Change this
@@ -29,7 +29,7 @@ if whiten == 'true':
 else:
     # this mean's the data was not whitened
 
-    detect_threshold = 1000  # units: bits
+    detect_threshold = 10000  # units: bits
 
     # if you want to find the threshold from the .set file and use that
     # set automate_threshold to True, otherwise False. This threshold would override any
@@ -51,18 +51,24 @@ freq_max = 7000  # this doesn't really matter because data is already filtered s
 # above mask_threshold SD's from the average bin RSS, it will consider it as high amplitude noise
 # and remove this chunk (and neighboring chunks).
 
-# mask = True
-mask = False
+mask = True
+# mask = False
 mask_threshold = 6  # units: SD's
 masked_chunk_size = None  # if none it will default to Fs/10
 mask_num_write_chunks = 100  #
 
 # feature parameters
 num_features = 10
-max_num_clips_for_pca = 3000
+max_num_clips_for_pca = 1000
 
 # random parameters, probably don't need to change
 
 clip_size = 50  # this needs to be left at 50 for Tint, Tint only likes 50 samples
 notch_filter = False  # the data is already notch filtered likely
 self = None  # don't worry about this, this is for objective oriented programming (my GUIs)
+
+default_settings = {'pre_spike': pre_spike, 'post_spike': post_spike, 'detect_sign': detect_sign,
+                    'detect_threshold': detect_threshold, 'detect_interval': detect_interval,
+                    'masked_chunk_size': masked_chunk_size, 'mask': mask, 'mask_threshold': mask_threshold,
+                    'nonbatch': 0, 'automate_threshold': automate_threshold, 'num_features': num_features,
+                    'max_num_clips_for_pca': max_num_clips_for_pca, 'whiten': whiten}

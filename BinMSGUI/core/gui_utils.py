@@ -1,5 +1,6 @@
 import os
-from PyQt5 import QtGui, QtWidgets
+from PyQt5 import QtGui, QtWidgets, QtCore
+import time
 
 gui_name = os.path.basename(os.path.dirname(os.path.dirname(__file__)))
 
@@ -16,7 +17,7 @@ def background(self):  # defines the background for each window
         os.mkdir(self.SETTINGS_DIR)
 
     # Acquiring information about geometry
-    self.setWindowIcon(QtGui.QIcon(os.path.join(self.IMG_DIR, 'cumc-crown.png')))  # declaring the icon image
+    self.setWindowIcon(QtGui.QIcon(os.path.join(self.IMG_DIR, 'GEBA_Logo.png')))  # declaring the icon image
     self.deskW, self.deskH = QtWidgets.QDesktopWidget().availableGeometry().getRect()[2:]  # gets the window resolution
     # self.setWindowState(QtCore.Qt.WindowMaximized) # will maximize the GUI
     self.setGeometry(0, 0, self.deskW/2, self.deskH/2)  # Sets the window size, 800x460 is the size of our window
@@ -24,9 +25,13 @@ def background(self):  # defines the background for each window
 
     # defining the filename that stores the directory information
     self.directory_settings = os.path.join(self.SETTINGS_DIR, 'directory.json')
-    self.settings_fname = os.path.join(self.SETTINGS_DIR, 'batch_settings.json')
+    self.settings_fname = os.path.join(self.SETTINGS_DIR, 'settings.json')
 
     QtWidgets.QApplication.setStyle(QtWidgets.QStyleFactory.create('GTK+'))
+
+
+Large_Font = ("Verdana", 12)  # defines two fonts for different purposes (might not be used
+Small_Font = ("Verdana", 8)
 
 
 def center(self):
@@ -36,3 +41,91 @@ def center(self):
     centerPoint = QtWidgets.QApplication.desktop().screenGeometry(screen).center()
     frameGm.moveCenter(centerPoint)
     self.move(frameGm.topLeft())
+
+
+class Worker(QtCore.QObject):
+    # def __init__(self, main_window, thread):
+    def __init__(self, function, *args, **kwargs):
+        super(Worker, self).__init__()
+        self.function = function
+        self.args = args
+        self.kwargs = kwargs
+        self.start.connect(self.run)
+
+    start = QtCore.pyqtSignal(str)
+
+    @QtCore.pyqtSlot()
+    def run(self):
+        self.function(*self.args, **self.kwargs)
+
+
+class Communicate(QtCore.QObject):
+    """
+    A custom pyqtsignal so that errors and popups can be called from the threads
+    to the main window
+    """
+    myGUI_signal_str = QtCore.pyqtSignal(str)
+    myGUI_signal_QTreeWidgetItem = QtCore.pyqtSignal(QtWidgets.QTreeWidgetItem)
+
+
+def find_keys(my_dictionary, value):
+    """finds a key for a given value of a dictionary"""
+    key = []
+    if not isinstance(value, list):
+        value = [value]
+    [key.append(list(my_dictionary.keys())[list(my_dictionary.values()).index(val)]) for val in value]
+    return key
+
+
+def find_consec(data):
+    '''finds the consecutive numbers and outputs as a list'''
+    consecutive_values = []  # a list for the output
+    current_consecutive = [data[0]]
+
+    if len(data) == 1:
+        return [[data[0]]]
+
+    for index in range(1, len(data)):
+
+        if data[index] == data[index - 1] + 1:
+            current_consecutive.append(data[index])
+
+            if index == len(data) - 1:
+                consecutive_values.append(current_consecutive)
+
+        else:
+            consecutive_values.append(current_consecutive)
+            current_consecutive = [data[index]]
+
+            if index == len(data) - 1:
+                consecutive_values.append(current_consecutive)
+    return consecutive_values
+
+
+@QtCore.pyqtSlot()
+def raise_window(new_window, old_window):
+    """ raise the current window"""
+    if 'Choose' in str(new_window):
+        new_window.raise_()
+        new_window.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+        new_window.show()
+        time.sleep(0.1)
+
+    elif "Choose" in str(old_window):
+        time.sleep(0.1)
+        old_window.hide()
+        return
+    else:
+        new_window.raise_()
+        new_window.show()
+        time.sleep(0.1)
+        old_window.hide()
+
+
+@QtCore.pyqtSlot()
+def cancel_window(new_window, old_window):
+    """ raise the current window"""
+    new_window.raise_()
+    new_window.show()
+    time.sleep(0.1)
+    old_window.hide()

@@ -1,24 +1,49 @@
 import os
 from PyQt5 import QtWidgets
 import time
+import threading
 from core.intan_mountainsort import validate_session
 from core.utils import find_bin_basenames
+
+threadLock = threading.Lock()
+
+
+def get_added(queue):
+    added = []
+    directories = []
+    item_count = queue.topLevelItemCount()
+    for item_index in range(item_count):
+        parent_item = queue.topLevelItem(item_index)
+
+        parent_directory = parent_item.data(0, 0)
+
+        if parent_directory not in directories:
+            directories.append(parent_directory)
+
+        for child_i in range(parent_item.childCount()):
+            added.append(os.path.join(parent_directory, parent_item.child(child_i).data(0, 0) + '.set'))
+
+    return added, directories
 
 
 def addSessions(self):
     """Adds any sessions that are not already on the list"""
 
-    while self.reordering_queue:
+    while self.reordering_queue or self.modifying_list:
         # pauses add Sessions when the individual is reordering
         time.sleep(0.1)
 
-    current_directory = self.current_directory_name
+    directory_added = False
 
-    if self.nonbatch == 0:
+    current_directory = self.current_directory.text()
+
+    if not self.nonbatch_check.isChecked():
         try:
             sub_directories = [d for d in os.listdir(current_directory)
-                               if os.path.isdir(os.path.join(current_directory, d)) and d not in ['Processed',
-                                                                                                  'Converted']]
+                               if os.path.isdir(os.path.join(current_directory, d)) and
+                               len([file for file in os.listdir(os.path.join(current_directory, d))
+                                    if '.set' in file]) != 0 and
+                               d not in ['Processed', 'Converted']]
         except PermissionError:
             return
         except OSError:
@@ -32,6 +57,35 @@ def addSessions(self):
     iterator = QtWidgets.QTreeWidgetItemIterator(self.directory_queue)
     # loops through all the already added sessions
     added_directories = []
+
+    added, add_dirs = get_added(self.directory_queue)
+
+    # check if directories still exist
+    item_count = self.directory_queue.topLevelItemCount()
+    for item_index in range(item_count):
+        parent_item = self.directory_queue.topLevelItem(item_index)
+        parent_directory = parent_item.data(0, 0)
+        if not os.path.exists(os.path.join(current_directory, parent_directory)):
+            # the path no longer exists
+            root = self.directory_queue.invisibleRootItem()
+            for child_index in range(root.childCount()):
+                if root.child(child_index) == parent_item:
+                    self.RemoveChildItem.myGUI_signal_QTreeWidgetItem.emit(parent_item)
+        else:
+            # the path exists
+            added_directories.append(parent_directory)
+            # check if the children exists
+            for child_i in range(parent_item.childCount()):
+                child_item = parent_item.child(child_i)
+                if not os.path.exists(os.path.join(current_directory, parent_directory, child_item.data(0, 0) + '.set')):
+                    # the path does not exist
+
+                    # remove the child value
+                    self.child_removed = False
+                    self.RemoveChildItem.myGUI_signal_QTreeWidgetItem.emit(child_item)
+                    while not self.child_removed:
+                        time.sleep(0.1)
+
     while iterator.value():
         directory_item = iterator.value()
 
@@ -71,21 +125,14 @@ def addSessions(self):
                         break
                     iterator += 1
 
-                # find added rhd_files
-                try:
-                    iterator = QtWidgets.QTreeWidgetItemIterator(directory_item)
-                except UnboundLocalError:
-                    return
-                except RuntimeError:
-                    return
+                added, add_dirs = get_added(self.directory_queue)
 
-                while iterator.value():
-                    session_item = iterator.value()
-                    added_bin_files.append(session_item.data(0, 0))
-                    iterator += 1
+                for value in added:
+                    if value not in added_bin_files:
+                        added_bin_files.append(value)
 
                 for bin_file in bin_files:
-                    if bin_file in added_bin_files:
+                    if os.path.join(directory, bin_file) + '.set' in added_bin_files:
                         continue
 
                     added_bin_files = addSession(self, bin_file, current_directory, directory, added_bin_files,
@@ -106,7 +153,11 @@ def addSessions(self):
 
 
 def addSession(self, bin_file, current_directory, directory, added_bin_files, directory_item):
+    """
+    takes the session information and adds the session if valid
+    """
 
+    added_bin_directory = directory
     directory = os.path.join(current_directory, directory)
 
     tint_basename = os.path.basename(os.path.splitext(bin_file)[0])
@@ -119,7 +170,7 @@ def addSession(self, bin_file, current_directory, directory, added_bin_files, di
         session_item = QtWidgets.QTreeWidgetItem()
         session_item.setText(0, tint_basename)
 
-        added_bin_files.append(bin_file)
+        added_bin_files.append(os.path.join(added_bin_directory, bin_file))
 
         directory_item.addChild(session_item)
 
@@ -133,29 +184,42 @@ def RepeatAddSessions(self):
 
     self.repeat_thread_active = True
 
-    try:
-        self.adding_session = True
-        addSessions(self)
-        # time.sleep(0.1)
-        self.adding_session = False
-    except FileNotFoundError:
-        pass
-    except RuntimeError:
-        pass
-
     while True:
+        with threadLock:
+            if self.reset_add_thread:
+                self.repeat_thread_active = False
+                self.reset_add_thread = False
+                return
 
-        if self.reset_add_thread:
-            self.repeat_thread_active = False
-            self.reset_add_thread = False
-            return
+        if self.directory_changed:
+            # then we have changed the directory name
+            while (time.time() - self.change_directory_time) < 0.5:
+                time.sleep(0.1)
+            self.directory_queue.clear()
+            self.directory_changed = False
+
+        elif self.whiten_changed:
+            # then we have changed the whitened option
+            while (time.time() - self.change_whiten_time) < 0.5:
+                time.sleep(0.1)
+            self.directory_queue.clear()
+            self.whiten_changed = False
+
+        elif self.batch_changed:
+            # then we have changed the batch
+            while (time.time() - self.change_batch_time) < 0.5:
+                time.sleep(0.1)
+            self.directory_queue.clear()
+            self.batch_changed = False
 
         try:
-            self.adding_session = True
-            # time.sleep(0.1)
+            with threadLock:
+                self.adding_session = True
             addSessions(self)
-            self.adding_session = False
-            # time.sleep(0.1)
+
+            with threadLock:
+                self.adding_session = False
+                time.sleep(0.1)
         except FileNotFoundError:
             pass
         except RuntimeError:

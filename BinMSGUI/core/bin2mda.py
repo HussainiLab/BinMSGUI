@@ -106,4 +106,4 @@ def convert_bin2mda(tint_fullpath, notch_filter=False, self=None):
 
         raise FileNotFoundError('missing conversion files (.set or .bin)')
 
-    mda_filenames = bin2mda(bin_filename, set_filename, notch_filter=notch_filter)
+    mda_filenames = bin2mda(bin_filename, set_filename, notch_filter=notch_filter, self=self)

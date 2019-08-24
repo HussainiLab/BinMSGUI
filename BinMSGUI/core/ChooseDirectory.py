@@ -88,7 +88,6 @@ class Choose_Dir(QtWidgets.QWidget):
                 directory_data = {'directory': self.current_directory_name}
                 json.dump(directory_data, filename)
         else:
-            # print('unchecked')
             pass
 
     def apply_dir(self, main):
@@ -105,3 +104,9 @@ class Choose_Dir(QtWidgets.QWidget):
         # main.current_directory_name = self.current_directory_name
 
         self.backbtn.animateClick()
+
+
+def new_directory(self, main):
+    current_directory_name = str(QtWidgets.QFileDialog.getExistingDirectory(self, "Select Directory"))
+    self.current_directory_name = current_directory_name
+    self.current_directory_e.setText(current_directory_name)
