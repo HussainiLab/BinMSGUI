@@ -342,7 +342,7 @@ def sort_bin(directory, tint_fullpath, whiten='true', detect_interval=10, detect
 
     for file in filt_fnames:
 
-        msg = '[%s %s]: Sorting the  following file: %s!' % \
+        msg = '[%s %s]: Sorting the following file: %s!' % \
               (str(datetime.datetime.now().date()),
                str(datetime.datetime.now().time())[:8], file)
 

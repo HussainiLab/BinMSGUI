@@ -215,7 +215,7 @@ def convert_tetrode(filt_filename, data_filename, output_basename, pre_spike=15,
         msg = '[%s %s]: Reading the spike data from the following file: %s' % (
             str(datetime.datetime.now().date()),
             str(datetime.datetime.now().time())[
-            :8], firings_out)
+            :8], data_filename)
 
         if self is None:
             print(msg)
