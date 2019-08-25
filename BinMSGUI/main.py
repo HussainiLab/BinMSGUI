@@ -249,7 +249,7 @@ class Window(QtWidgets.QWidget):  # defines the window class (main window)
         # finds the modification date of the program
 
         # creates a label with that information
-        vers_label = QtWidgets.QLabel(("%s V1.0.1 " % gui_name))
+        vers_label = QtWidgets.QLabel(("%s V1.0.2 " % gui_name))
 
         # ------------------- page layout ----------------------------------------
 

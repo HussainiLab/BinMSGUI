@@ -10,7 +10,7 @@ pkg_name = "BinMSGUI"
 
 setuptools.setup(
     name=pkg_name,
-    version="1.0.1",
+    version="1.0.2",
     author="Geoffrey Barrett",
     author_email="geoffrey.m.barrett@gmail.com",
     description="BinMSGUI, sorts .bin data through MountainSort and exports as Tint format.",
