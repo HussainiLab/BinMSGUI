@@ -77,7 +77,7 @@ def validate_session(directory, tint_basename, output_basename, self=None, verbo
     #     directory) if '_filt.mda' in file if tint_basename in file]
 
     firing_fnames = [os.path.join(directory, file) for file in os.listdir(
-        directory) if '_firings.mda' in file if tint_basename in file]
+        directory) if '_firings.mda' in file if (tint_basename + '_') in file]
 
     eeg_filenames = []
     egf_filenames = []
@@ -132,7 +132,7 @@ def validate_session(directory, tint_basename, output_basename, self=None, verbo
 
     # check if tetrodes/cut files have been converted already
     filt_fnames = [os.path.join(directory, file) for file in os.listdir(
-        directory) if '_filt.mda' in file if os.path.basename(tint_basename) in file]
+        directory) if '_filt.mda' in file if (os.path.basename(tint_basename) + '_') in file]
 
     for filt_filename in filt_fnames:
         mda_basename = os.path.splitext(filt_filename)[0]
