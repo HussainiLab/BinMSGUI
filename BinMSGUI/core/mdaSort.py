@@ -326,7 +326,7 @@ def sort_finished(terminal_output_filename, max_time=600):
 
 def sort_bin(directory, tint_fullpath, whiten='true', detect_interval=10, detect_sign=0, detect_threshold=3,
              freq_min=300, freq_max=6000, mask_threshold=6, masked_chunk_size=None, mask_num_write_chunks=100,
-             clip_size=50, mask=True, num_features=10, max_num_clips_for_pca=1000, self=None):
+             clip_size=50, mask=True, num_features=10, max_num_clips_for_pca=1000, self=None, verbose=True):
 
     if mask:
         mask = 'true'
@@ -341,6 +341,16 @@ def sort_bin(directory, tint_fullpath, whiten='true', detect_interval=10, detect
         directory) if '_filt.mda' in file if tint_basename in file]
 
     for file in filt_fnames:
+
+        msg = '[%s %s]: Sorting the  following file: %s!' % \
+              (str(datetime.datetime.now().date()),
+               str(datetime.datetime.now().time())[:8], file)
+
+        if self:
+            self.LogAppend.myGUI_signal_str.emit(msg)
+        else:
+            print(msg)
+
         mda_basename = os.path.splitext(file)[0]
         mda_basename = mda_basename[:find_sub(mda_basename, '_')[-1]]
 
@@ -394,17 +404,27 @@ def sort_bin(directory, tint_fullpath, whiten='true', detect_interval=10, detect
 
         while sorting:
 
-            run_sort(filt_fname=filt_fname, pre_out_fname=pre_out_fname,
-                     metrics_out_fname=metrics_out_fname, firings_out=firings_out,
+            run_sort(filt_fname=filt_fname,
+                     pre_out_fname=pre_out_fname,
+                     metrics_out_fname=metrics_out_fname,
+                     firings_out=firings_out,
                      masked_out_fname=masked_out_fname,
-                     samplerate=Fs, detect_interval=detect_interval, detect_sign=detect_sign,
-                     detect_threshold=detect_threshold, freq_min=freq_min, freq_max=freq_max,
+                     samplerate=Fs,
+                     detect_interval=detect_interval,
+                     detect_sign=detect_sign,
+                     detect_threshold=detect_threshold,
+                     freq_min=freq_min,
+                     freq_max=freq_max,
                      mask_threshold=mask_threshold,
-                     mask_chunk_size=masked_chunk_size, mask_num_write_chunks=mask_num_write_chunks,
-                     whiten=whiten, mask_artifacts=mask,
+                     mask_chunk_size=masked_chunk_size,
+                     mask_num_write_chunks=mask_num_write_chunks,
+                     whiten=whiten,
+                     mask_artifacts=mask,
                      clip_size=clip_size,
-                     num_features=num_features, max_num_clips_for_pca=max_num_clips_for_pca,
-                     terminal_text_filename=terminal_text_filename)
+                     num_features=num_features,
+                     max_num_clips_for_pca=max_num_clips_for_pca,
+                     terminal_text_filename=terminal_text_filename,
+                     verbose=verbose)
 
             # wait for the sort to finish before continuing
             finished, sort_code = sort_finished(get_windows_filename(terminal_text_filename))

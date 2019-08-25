@@ -201,7 +201,8 @@ def BatchAnalyze(main_window, directory):
                                                  post_spike=post_spike,
                                                  num_features=num_features,
                                                  max_num_clips_for_pca=max_num_clips_for_pca,
-                                                 self=main_window)
+                                                 self=main_window,
+                                                 verbose=False)
 
                         main_window.analyzed_sessions.append(main_window.current_session)
 
