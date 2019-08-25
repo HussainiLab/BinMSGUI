@@ -1,15 +1,23 @@
 import os
 from PyQt5 import QtGui, QtWidgets, QtCore
 import time
+import sys
 
 gui_name = os.path.basename(os.path.dirname(os.path.dirname(__file__)))
+
+project_name = 'BinMSGUI'
 
 
 def background(self):  # defines the background for each window
     """providing the background info for each window"""
 
+    project_dir = os.path.dirname(os.path.abspath("__file__"))
+
+    if os.path.basename(project_dir) != project_name:
+        project_dir = os.path.dirname(sys.argv[0])
+
     # defining the directory filepaths
-    self.PROJECT_DIR = os.path.dirname(os.path.abspath("__file__"))  # project directory
+    self.PROJECT_DIR = project_dir  # project directory
     self.IMG_DIR = os.path.join(self.PROJECT_DIR, 'img')  # image directory
     self.CORE_DIR = os.path.join(self.PROJECT_DIR, 'core')  # core directory
     self.SETTINGS_DIR = os.path.join(self.PROJECT_DIR, 'settings')  # settings directory
